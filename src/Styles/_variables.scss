@@ -1,0 +1,16 @@
+// Set color variables here for ease of change
+
+$primary: #5680E9;
+$secondary: #5AB9EA;
+$lighter-primary: #84CEEB;
+$dark-contrast: #8860D0;
+$lighter-secondary: #C1C8E4;
+$error: #e74c3c;
+
+
+$background: linear-gradient(to right, $lighter-secondary, $lighter-primary, $lighter-secondary);
+$normal-button-text: $lighter-secondary;
+$normal-button-color: linear-gradient(to right, $dark-contrast, $secondary);
+$error-button-text: $error;
+$error-button-color: linear-gradient(to right, #5680E9, #5AB9EA);
+$title-text: $primary;
