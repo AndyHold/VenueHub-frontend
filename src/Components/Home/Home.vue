@@ -2,7 +2,7 @@
     <div id="home">
       <div>
         <h2>Welcome to</h2>
-        <h1>Insert Name Here</h1>
+        <h1>Venue Hub</h1>
         <v-flex>
           <v-layout row>
             <v-dialog
@@ -39,7 +39,7 @@
                           hint="Username or Email must be provided"
                           :value="userIdentity"
                           v-model="userIdentity"
-                          @focus="userIdentityErrors = [];"
+                          @focus="userIdentityErrors = []"
                           @blur="validateUserIdentity"
                           :error-messages="userIdentityErrors"
                         ></v-text-field>
@@ -51,7 +51,7 @@
                           hint="Enter your password here"
                           :value="loginPassword"
                           v-model="loginPassword"
-                          @focus="loginPasswordErrors = [];"
+                          @focus="loginPasswordErrors = []"
                           @blur="validateLoginPassword"
                           :error-messages="loginPasswordErrors"
                         ></v-text-field>
@@ -102,7 +102,7 @@
                           hint="Enter your given name here"
                           :value="newUser.givenName"
                           v-model="newUser.givenName"
-                          @focus="givenNameErrors = [];"
+                          @focus="givenNameErrors = []"
                           @blur="validateGivenName"
                           :error-messages="givenNameErrors"
                         ></v-text-field>
@@ -113,7 +113,7 @@
                           hint="Enter your family name here"
                           :value="newUser.familyName"
                           v-model="newUser.familyName"
-                          @focus="familyNameErrors = [];"
+                          @focus="familyNameErrors = []"
                           @blur="validateFamilyName"
                           :error-messages="familyNameErrors"
                         ></v-text-field>
@@ -124,7 +124,7 @@
                           hint="Enter your desired username here"
                           :value="newUser.username"
                           v-model="newUser.username"
-                          @focus="usernameErrors = [];"
+                          @focus="usernameErrors = []"
                           @blur="validateUsername"
                           :error-messages="usernameErrors"
                         ></v-text-field>
@@ -135,7 +135,7 @@
                           hint="Enter your email here"
                           :value="newUser.email"
                           v-model="newUser.email"
-                          @focus="emailErrors = [];"
+                          @focus="emailErrors = []"
                           @blur="validateEmail"
                           :error-messages="emailErrors"
                         ></v-text-field>
@@ -147,7 +147,7 @@
                           hit="Enter your password here"
                           :value="newUser.password"
                           v-model="newUser.password"
-                          @focus="passwordErrors = [];"
+                          @focus="passwordErrors = []"
                           @blur="validatePassword"
                           :error-messages="passwordErrors"
                         ></v-text-field>
@@ -159,7 +159,7 @@
                           hit="Enter your password again here"
                           :value="confirmPassword"
                           v-model="confirmPassword"
-                          @focus="passwordErrors = [];"
+                          @focus="passwordErrors = []"
                           @blur="validatePassword"
                           :error-messages="passwordErrors"
                         ></v-text-field>
@@ -251,7 +251,7 @@
         this.validateAllSignUpFields();
         if (this.hasValidSignUpInput) {
           try {
-            const newUser = await sendSignUpRequest(this.newUser);
+            await sendSignUpRequest(this.newUser);
             const userInfo = await sendLoginRequest({
               "username": this.newUser.username,
               "password": this.newUser.password
