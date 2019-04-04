@@ -7,8 +7,8 @@ const UserStorage = {
     familyName: null
   },
   methods: {
-    setUserData(user) {
-      UserStorage.data.userId = user.userId;
+    setUserData(user, userId) {
+      UserStorage.data.userId = userId;
       UserStorage.data.userName = user.userName;
       UserStorage.data.email = user.email;
       UserStorage.data.givenName = user.givenName;

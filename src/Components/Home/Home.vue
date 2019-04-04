@@ -24,7 +24,7 @@
 
               <v-card>
                 <v-card-title
-                  class="headline primary"
+                  class="headline primary title-text"
                   primary-title
                   >
                   Enter Login Details:
@@ -87,7 +87,7 @@
 
               <v-card>
                 <v-card-title
-                  class="headline primary"
+                  class="headline primary title-text"
                   primary-title
                 >
                   Enter Your Details:
@@ -183,7 +183,9 @@
 </template>
 
 <script>
-  import {sendLoginRequest, sendSignUpRequest} from "./HomeService";
+  import {sendLoginRequest, sendSignUpRequest} from "./../../Utilities/loginPortal";
+  import UserStorage from "../../DataStorage/userStorage";
+  import {getUser} from "./HomeService";
 
   export default {
     name: "Home",
@@ -238,11 +240,14 @@
             };
           }
           try {
-            const userInfo = await sendLoginRequest(user);
-            localStorage.setItem("userId", userInfo.userId);
-            localStorage.setItem("authToken", userInfo.token);
-            this.$router.push(`/profile/${userInfo.userId}`);
+            const loginInfo = await sendLoginRequest(user);
+            localStorage.setItem("userId", loginInfo.userId);
+            localStorage.setItem("authToken", loginInfo.token);
+            const userInfo = await getUser(loginInfo.userId);
+            UserStorage.methods.setUserData(userInfo, loginInfo.userId);
+            this.$router.push(`/profile/${loginInfo.userId}`);
           } catch (error) {
+            console.log(error);
             this.loginPasswordErrors.push("Incorrect Username or password, please try again");
           }
         }
@@ -447,6 +452,10 @@
 
   .home-button {
     margin: 10px
+  }
+
+  .title-text {
+    color: $lighter-secondary;
   }
 
 </style>

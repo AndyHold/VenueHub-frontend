@@ -5,9 +5,11 @@ import router from "./routes";
 import Vuetify from 'vuetify';
 import "vuetify/src/stylus/app.styl";
 import 'vuetify/dist/vuetify.min.css';
+
 Vue.use(Vuetify, {
   iconfont: 'md'
 });
+
 
 import VueResource from 'vue-resource';
 Vue.use(VueResource);

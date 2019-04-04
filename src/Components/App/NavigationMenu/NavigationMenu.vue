@@ -1,5 +1,5 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <div class="text-xs-center">
+  <div class="text-xs-center front-item">
     <v-menu
       bottom
       origin="center center"
@@ -12,15 +12,15 @@
           round
           fab
           class="menu-button"
-          dark
+          color="blue-grey lighten-4"
           v-on="on"
         >
-          <v-icon>apps</v-icon>
+          <v-icon color="primary">apps</v-icon>
         </v-btn>
       </template>
 
-      <v-list style="background-color: lightgrey; border-radius: 1em">
-        <v-layout column style="border-radius: 1em">
+      <v-list class="nav-menu">
+        <v-layout column class="nav-menu">
           <v-btn
             round
             v-for="item in items"
@@ -60,26 +60,41 @@
           url: '/venues',
           icon: 'local_bar',
           loggedIn: true,
-          loggedOut: true
+          loggedOut: false
         },
         {
-          title: '',
-          url: '',
-          icon: '',
+          title: 'Search Venues',
+          url: '/search',
+          icon: 'search',
           loggedIn: true,
           loggedOut: true
         }
       ]
-    })
+    }),
+    methods: {
+      goToURL: function (URL) {
+        this.$router.push(URL)
+      }
+    }
   }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+  @import "../../../Styles/_variables.scss";
 
   .menu-button {
     position: fixed;
     top: 30px;
     left: 30px;
+  }
+
+  .nav-menu {
+    background-color: lightgrey;
+    border-radius: 1em
+  }
+
+  .front-item {
+    z-index: 10000;
   }
 
 

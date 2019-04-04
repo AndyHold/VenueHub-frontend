@@ -1,5 +1,6 @@
 import { endpoint } from "./endpoint";
 import UserStorage from "../DataStorage/userStorage";
+import superAgent from "superagent";
 
 
 export async function isLoggedIn(to, from, next) {
@@ -19,10 +20,10 @@ export async function isLoggedIn(to, from, next) {
   }
 
   // Request the user details and update them in the UserStorage, on error display the home page.
-  this.$http.get(endpoint(`/users/${userId}`))
+  superAgent.get(endpoint(`/users/${userId}`))
     .set("X-Authorization", authToken)
     .then(response => {
-      UserStorage.methods.setUserData(response.body);
+      UserStorage.methods.setUserData(response.body, userId);
       next();
     })
     .catch(() => {
@@ -50,7 +51,7 @@ export async function isLoggedInOrOut(to, from, next) {
   }
 
   // Request the user details and update them in the UserStorage
-  this.$http.get(endpoint(`/users/${userId}`))
+  superAgent.get(endpoint(`/users/${userId}`))
     .set("X-Authorization", authToken)
     .then(response => {
       UserStorage.methods.setUserData(response.body);

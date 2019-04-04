@@ -1,18 +1,10 @@
-import { endpoint } from "../../Utilities/endpoint"
 import superAgent from "superagent";
+import { endpoint } from "../../Utilities/endpoint";
 
 
-export async function sendLoginRequest(user) {
-  const response = await superAgent.post(endpoint("/users/login"))
-    .send(user);
-
-  return response.body;
-}
-
-
-export async function sendSignUpRequest(user) {
-  const response = await superAgent.post(endpoint("/users/"))
-    .send(user);
+export async function getUser(userId) {
+  let response = await superAgent.get(endpoint(`/users/${userId}`))
+    .set("x-authorization", localStorage.getItem("authToken"));
 
   return response.body;
 }
