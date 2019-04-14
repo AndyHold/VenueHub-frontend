@@ -433,12 +433,12 @@
 </script>
 
 <style lang="scss" scoped>
-  @import "../../Styles/_variables.scss";
+  @import "../../Resources/StyleSheets/variables";
   #home {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url("./IMAG1188.jpg");
+    background-image: url("../../Resources/Images/background.jpg");
     background-size: cover;
     box-shadow: inset 0 0 0 1000px rgba(0,0,0,.4);
     width: 100%;

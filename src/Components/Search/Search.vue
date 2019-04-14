@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="search">
     <v-toolbar fixed color="primary" class="page-header" z-index="9999">
       <v-toolbar-title class="page-title">Search Venues</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -207,7 +207,7 @@
                   ></v-img>
                   <v-img
                     v-else
-                    src="src/Components/Search/placeholder-image.jpg"
+                    src="src/Resources/Images/placeholder-image.jpg"
                     aspect-ratio="1"
                     class="primary-image"
                   ></v-img>
@@ -603,7 +603,14 @@
 </script>
 
 <style lang="scss" scoped>
-  @import "../../Styles/_variables.scss";
+  @import "../../Resources/StyleSheets/variables";
+
+  #search {
+    background-image: url("../../Resources/Images/background.jpg");
+    background-size: cover;
+    width: 100%;
+    height: 100%;
+  }
 
   .page-header {
     height: 130px;

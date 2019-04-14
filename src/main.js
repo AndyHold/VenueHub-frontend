@@ -10,8 +10,8 @@ Vue.use(Vuetify, {
   iconfont: 'md'
 });
 
-
 import VueResource from 'vue-resource';
+
 Vue.use(VueResource);
 Vue.http.options.emulateJSON = true;
 

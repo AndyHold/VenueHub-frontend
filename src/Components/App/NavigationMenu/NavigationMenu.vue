@@ -73,7 +73,7 @@
 </script>
 
 <style lang="scss" scoped>
-  @import "../../../Styles/_variables.scss";
+  @import "../../../Resources/StyleSheets/variables";
 
   .menu-button {
     position: fixed;
