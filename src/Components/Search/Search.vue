@@ -70,25 +70,25 @@
           </v-layout>
           <v-layout row wrap>
 
-            <v-layout xs7 row wrap>
+            <!-- Category search selector -->
+            <v-flex xs4 d-flex class="input-padding">
+              <v-select
+                label="Categories"
+                hint="Search for a venue by category"
+                v-model="queries.categoryId"
+                :value="queries.categoryId"
+                :items="categories"
+                item-value="categoryId"
+                item-text="categoryName"
+                clearable
+              ></v-select>
+            </v-flex>
+            <!-- End of category search selector -->
 
-              <!-- Category search selector -->
-              <v-flex xs6 d-flex class="input-padding">
-                <v-select
-                  label="Categories"
-                  hint="Search for a venue by category"
-                  v-model="queries.categoryId"
-                  :value="queries.categoryId"
-                  :items="categories"
-                  item-value="categoryId"
-                  item-text="categoryName"
-                  clearable
-                ></v-select>
-              </v-flex>
-              <!-- End of category search selector -->
+            <v-layout xs4 row wrap>
 
               <!-- Sort by search selector -->
-              <v-flex xs6 d-flex class="input-padding">
+              <v-flex xs10 d-flex class="input-padding">
                 <v-select
                   label="Sort By"
                   hint="How to sort the venues"
@@ -102,17 +102,17 @@
               </v-flex>
               <!-- End of sort by search selector -->
 
-            </v-layout>
+              <!-- Reversed checkbox -->
+              <v-flex xs2 d-flex class="input-padding">
+                <v-checkbox
+                  label="Reverse"
+                  v-model="queries.reverseSort"
+                  :value="queries.reverseSort"
+                ></v-checkbox>
+              </v-flex>
+              <!-- End of reversed checkbox -->
 
-            <!-- Reversed checkbox -->
-            <v-flex xs1 d-flex class="input-padding">
-              <v-checkbox
-                label="Reverse"
-                v-model="queries.reverseSort"
-                :value="queries.reverseSort"
-              ></v-checkbox>
-            </v-flex>
-            <!-- End of reversed checkbox -->
+            </v-layout>
 
             <!-- Cost rating search slider -->
             <v-flex xs4 d-flex>
@@ -141,6 +141,41 @@
             </v-flex>
             <!-- End of cost rating search slider -->
 
+          </v-layout>
+          <v-layout row wrap>
+            <v-spacer></v-spacer>
+            <v-btn flat :disabled="canMove(0)" v-on:click="startIndex -= 10">
+              <v-icon>arrow_back</v-icon>
+            </v-btn>
+            <v-btn flat v-if="numberOfResults >= 0" v-on:click="movePage(0)" :disabled="isCurrentPage(0)">
+              <b>
+              {{ getPageRange(0) }}
+              </b>
+            </v-btn>
+            <v-btn flat v-if="numberOfResults > 10" v-on:click="movePage(1)" :disabled="isCurrentPage(1)">
+              <b>
+              {{ getPageRange(1) }}
+              </b>
+            </v-btn>
+            <v-btn flat v-if="numberOfResults > 20" v-on:click="movePage(2)" :disabled="isCurrentPage(2)">
+              <b>
+              {{ getPageRange(2) }}
+              </b>
+            </v-btn>
+            <v-btn flat v-if="numberOfResults > 30" v-on:click="movePage(3)" :disabled="isCurrentPage(3)">
+              <b>
+              {{ getPageRange(3) }}
+              </b>
+            </v-btn>
+            <v-btn flat v-if="numberOfResults > 40" v-on:click="movePage(4)" :disabled="isCurrentPage(4)">
+              <b>
+              {{ getPageRange(4) }}
+              </b>
+            </v-btn>
+            <v-btn flat :disabled="canMove(1)" v-on:click="startIndex += 10">
+              <v-icon>arrow_forward</v-icon>
+            </v-btn>
+            <v-spacer></v-spacer>
           </v-layout>
         </v-card>
 
@@ -294,6 +329,7 @@
 </template>
 
 <script>
+
   import {getCategories, getVenues} from "./SearchService";
   import 'ol/ol.css';
   import {Map, View} from 'ol';
@@ -311,8 +347,6 @@
     data () {
       return {
         queries: {
-          startIndex: null,
-          count: null,
           city: null,
           q: null,
           categoryId: null,
@@ -327,6 +361,8 @@
           myLatitude: null,
           myLongitude: null
         },
+        startIndex: 0,
+        count: 10,
         sortableFields: [
           {
             itemValue: "STAR_RATING",
@@ -338,7 +374,8 @@
           }
         ],
         venues: [],
-        categories: []
+        categories: [],
+        numberOfResults: 0
       }
     },
 
@@ -354,11 +391,15 @@
         this.onLatitudeChanged();
       },
 
-      'queries' : {
+      'queries': {
         handler: 'onQueriesChanged',
         immediate: true,
         deep: true
       },
+      'startIndex': {
+        handler: 'onStartIndexChanged',
+        immediate: true
+      }
 
     },
 
@@ -391,7 +432,13 @@
         return `map-${venueId}`;
       },
       onQueriesChanged: async function () {
-        this.venues = await getVenues(this.queries);
+        this.startIndex = 0;
+        let results = await getVenues(this.queries, null, null);
+        this.numberOfResults = results.length;
+        this.venues = await getVenues(this.queries, this.startIndex, this.count);
+      },
+      onStartIndexChanged: async function () {
+        this.venues = await getVenues(this.queries, this.startIndex, this.count);
       },
       getLocation: function () {
         if (navigator.geolocation) {
@@ -439,12 +486,112 @@
           localStorage.removeItem("authToken");
         }
         this.$router.go(0);
+      },
+      getPageRange: function(btn) {
+        let pageRange = "";
+        if (this.numberOfResults === 0) {
+          return "0 RESULTS FOUND";
+        } else if (this.startIndex <= 20) {
+          pageRange += (btn * 10 + 1) + " - ";
+          if (this.numberOfResults > ((btn + 1) * 10)) {
+            return pageRange + ((btn + 1) * 10);
+          } else {
+            return pageRange + this.numberOfResults;
+          }
+        } else if (this.numberOfResults - this.startIndex > 20) {
+          pageRange += (this.startIndex + (btn - 2) * 10 + 1) + " - ";
+          if (this.numberOfResults >= this.startIndex + (btn - 1) * 10 + 1) {
+            return pageRange + (this.startIndex + (btn - 1) * 10);
+          } else {
+            return pageRange + this.numberOfResults;
+          }
+        } else if (this.numberOfResults - this.startIndex <= 10 && this.numberOfResults <= 40) {
+          pageRange += (this.startIndex + (btn - 3) * 10 + 1) + " - ";
+          if (this.numberOfResults >= this.startIndex + (btn - 3) * 10 + 1) {
+            return pageRange + (this.startIndex + (btn - 2) * 10);
+          } else {
+            return pageRange + this.numberOfResults;
+          }
+        } else if (this.numberOfResults - this.startIndex <= 10 && this.numberOfResults <= 50) {
+          pageRange += (this.startIndex + (btn - 4) * 10 + 1) + " - ";
+          if (this.numberOfResults >= this.startIndex + (btn - 3) * 10 + 1) {
+            return pageRange + (this.startIndex + (btn - 3) * 10);
+          } else {
+            return pageRange + this.numberOfResults;
+          }
+        } else if (this.numberOfResults - this.startIndex <= 20 && this.numberOfResults <= 50) {
+          pageRange += (this.startIndex + (btn - 3) * 10 + 1) + " - ";
+          if (this.numberOfResults >= this.startIndex + (btn - 2) * 10 + 1) {
+            return pageRange + (this.startIndex + (btn - 2) * 10);
+          } else {
+            return pageRange + this.numberOfResults;
+          }
+        } else if (this.numberOfResults - this.startIndex > 10) {
+          pageRange += (this.startIndex + (btn - 3) * 10 + 1) + " - ";
+          if (this.numberOfResults >= this.startIndex + (btn - 2) * 10 + 1) {
+            return pageRange + (this.startIndex + (btn - 2) * 10);
+          } else {
+            return pageRange + this.numberOfResults;
+          }
+        } else if (this.numberOfResults - this.startIndex > 0) {
+          console.log("here");
+          pageRange += (this.startIndex + (btn - 4) * 10 + 1) + " - ";
+          if (this.numberOfResults >= this.startIndex + (btn - 3) * 10 + 1) {
+            return pageRange + (this.startIndex + (btn - 3) * 10);
+          } else {
+            return pageRange + this.numberOfResults;
+          }
+        }
+      },
+      canMove: function(btn) {
+        switch(btn) {
+          case 0:
+            return !(this.startIndex > 9);
+          case 1:
+            return !(this.numberOfResults - this.startIndex > 10);
+        }
+      },
+      movePage: function(btn) {
+        if (this.startIndex <= 20) {
+          this.startIndex = btn * 10;
+        } else if (this.startIndex > 20 && this.numberOfResults - this.startIndex > 20.0) {
+          this.startIndex += (btn - 2.0) * 10;
+        } else if (this.startIndex > 20 && this.numberOfResults - this.startIndex <= 10.0) {
+          this.startIndex += (btn - 4.0) * 10;
+        } else if (this.startIndex > 20 && this.numberOfResults - this.startIndex <= 20.0) {
+          this.startIndex += (btn - 3.0) * 10;
+        }
+      },
+      isCurrentPage: function(btn) {
+        switch(btn) {
+          case 0:
+            return (this.startIndex === 0);
+          case 1:
+            return (this.startIndex === 10);
+          case 2:
+            return (this.startIndex > 10 && (this.numberOfResults - this.startIndex > 20 || (this.numberOfResults <= 50 && this.startIndex === 20)));
+          case 3:
+            return (this.startIndex > 20 && ((this.numberOfResults - this.startIndex > 10 && this.numberOfResults - this.startIndex < 20) || this.numberOfResults <= 40));
+          case 4:
+            return (this.startIndex > 20 && this.numberOfResults - this.startIndex > 0 && this.numberOfResults - this.startIndex <= 10);
+        }
+        if (this.startIndex <= 20) {
+
+        } else if (this.startIndex > 20 && this.numberOfResults - this.startIndex > 20.0) {
+
+        } else if (this.startIndex > 20 && this.numberOfResults - this.startIndex <= 10.0) {
+
+        } else if (this.startIndex > 20 && this.numberOfResults - this.startIndex <= 20.0) {
+
+        }
       }
     },
 
     mounted: async function () {
       this.categories = await getCategories();
-      this.venues = await getVenues(this.queries);
+      let results = await getVenues(this.queries, null, null);
+      this.numberOfResults = results.length;
+      this.venues = await getVenues(this.queries, this.startIndex, this.count);
       this.getLocation();
 
       // Create each map

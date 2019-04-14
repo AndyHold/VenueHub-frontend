@@ -27,7 +27,9 @@ export async function isLoggedIn(to, from, next) {
       next();
     })
     .catch(() => {
-      alert("Please Login to continue");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("authToken");
+      UserStorage.methods.logout();
       next('/')
     })
 
@@ -36,7 +38,6 @@ export async function isLoggedIn(to, from, next) {
 export async function isLoggedInOrOut(to, from, next) {
   const userId = localStorage.getItem("userId");
   const authToken = localStorage.getItem("authToken");
-
 
   // If the userId or authToken do not exist, continue
   if (!userId || !authToken) {
@@ -54,11 +55,28 @@ export async function isLoggedInOrOut(to, from, next) {
   superAgent.get(endpoint(`/users/${userId}`))
     .set("X-Authorization", authToken)
     .then(response => {
-      UserStorage.methods.setUserData(response.body);
+      UserStorage.methods.setUserData(response.body, userId);
       next();
     })
     .catch(() => {
-      next()
+      localStorage.removeItem("userId");
+      localStorage.removeItem("authToken");
+      UserStorage.methods.logout();
+      next();
     })
 
+}
+
+export async function isNotLoggedIn(to, from, next) {
+  const userId = localStorage.getItem("userId");
+  const authToken = localStorage.getItem("authToken");
+
+  console.log(userId);
+  console.log(authToken);
+  // If the userId or authToken exist, go to the profile screen
+  if (userId || authToken) {
+    next('/profile');
+  } else {
+    next();
+  }
 }

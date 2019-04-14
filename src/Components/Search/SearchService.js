@@ -9,7 +9,9 @@ export async function getCategories () {
 }
 
 
-export async function getVenues(queries) {
+export async function getVenues(queries, startIndex, count) {
+  queries["startIndex"] = startIndex;
+  queries["count"] = count;
   let response = await superAgent.get(endpoint("/venues" + await parseQueries(queries)));
 
   return response.body;

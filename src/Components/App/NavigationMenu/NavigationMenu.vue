@@ -49,13 +49,6 @@
           loggedOut: true
         },
         {
-          title: 'Profile',
-          url: '/profile',
-          icon: 'dashboard',
-          loggedIn: true,
-          loggedOut: false
-        },
-        {
           title: 'My Venues',
           url: '/venues',
           icon: 'local_bar',
