@@ -11,6 +11,8 @@
 
       <!-- Main Container -->
       <v-layout fluid justify-center list-grid class="main-container">
+
+        <!-- Photo and Name Card -->
         <v-flex xs4>
           <v-card elevation="10" class="profile-card">
             <v-layout column list-grid>
@@ -30,10 +32,10 @@
               </v-flex>
               <v-layout xs4 row>
                 <v-spacer></v-spacer>
-                <h4 class="display-1 first-name">
+                <h4 class="display-1 first-name font-weight-light">
                   {{ user.givenName }}
                 </h4>
-                <h4 class="display-1 last-name">
+                <h4 class="display-1 last-name font-weight-regular">
                   {{ user.familyName }}
                 </h4>
                 <v-spacer></v-spacer>
@@ -41,7 +43,10 @@
             </v-layout>
           </v-card>
         </v-flex>
+        <!-- End of Photo and Name Card -->
+
       </v-layout>
+      <!-- End of Main Container -->
 
     </div>
 </template>
