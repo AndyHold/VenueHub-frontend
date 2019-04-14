@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <div id="profile">
       <!-- Title Bar -->
       <v-toolbar fixed color="primary" class="page-header" z-index="9999">
@@ -11,22 +11,77 @@
 
       <!-- Main Container -->
       <v-layout fluid justify-center list-grid class="main-container">
+
         <v-flex xs4>
           <v-card elevation="10" class="profile-card">
             <v-layout column list-grid>
               <v-flex xs4>
-                <v-img
-                  v-if="userPhoto"
-                  :src="userPhoto"
-                  aspect-ratio="1"
-                  class="profile-photo"
-                ></v-img>
-                <v-img
-                  v-else
-                  src="src/Resources/Images/placeholder-image.jpg"
-                  aspect-ratio="1"
-                  class="profile-photo"
-                ></v-img>
+                <v-card
+                  class="image-card"
+                  flat
+                >
+                  <v-flex>
+                    <v-img
+                      v-if="userPhoto"
+                      :src="userPhoto"
+                      aspect-ratio="1"
+                      class="profile-photo"
+                    >
+                    </v-img>
+                    <v-img
+                      v-else
+                      src="src/Resources/Images/placeholder-image.jpg"
+                      aspect-ratio="1"
+                      class="profile-photo"
+                    ></v-img>
+                  </v-flex>
+                  <v-dialog
+                    v-model="uploadPhotoDialog"
+                    persistent
+                    full-width
+                  >
+
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        class="upload-photo-btn"
+                        fab
+                        color="primary darken-1"
+                        round
+                        v-on="on"
+                        absolute
+                      >
+                        <v-icon>cloud_upload</v-icon>
+                      </v-btn>
+                    </template>
+
+                    <v-card>
+                      <v-card-title
+                        class="headline primary title-text"
+                        color="primary darken-1"
+                        >
+                        Upload a Profile Picture
+                      </v-card-title>
+
+                      <v-card-media>
+                        <!-- code to upload image here -->
+                      </v-card-media>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          flat
+                          color="success darken-1"
+                        >Upload</v-btn>
+                        <v-btn
+                          flat
+                          color="error darken-1"
+                          @click="uploadPhotoDialog = false"
+                          >Close</v-btn>
+                      </v-card-actions>
+                    </v-card>
+
+                  </v-dialog>
+                </v-card>
               </v-flex>
               <v-layout xs4 row>
                 <v-spacer></v-spacer>
@@ -37,11 +92,108 @@
                   {{ user.familyName }}
                 </h4>
                 <v-spacer></v-spacer>
+
+                <v-dialog
+                  v-model="editProfileDialog"
+                  persistent
+                  full-width
+                >
+
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      class="edit-profile-btn"
+                      fab
+                      color="primary darken-1"
+                      round
+                      v-on="on"
+                      absolute
+                    >
+                      <v-icon>edit</v-icon>
+                    </v-btn>
+                  </template>
+
+                  <v-card>
+                    <v-card-title
+                      class="headline primary title-text"
+                      color="primary darken-1"
+                    >
+                      Edit your profile
+                    </v-card-title>
+
+                    <v-card-text>
+                      <!-- code to edit profile here -->
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        flat
+                        color="success darken-1"
+                      >Accept</v-btn>
+                      <v-btn
+                        flat
+                        color="error darken-1"
+                        @click="editProfileDialog = false"
+                      >Close</v-btn>
+                    </v-card-actions>
+                  </v-card>
+
+                </v-dialog>
               </v-layout>
             </v-layout>
           </v-card>
         </v-flex>
+
       </v-layout>
+
+      <v-layout fluid jusify-center list-grid class="venues-layout">
+
+        <v-flex xs12>
+          <v-card
+            elevation="10"
+            class="venues-card"
+          >
+
+            <v-card-title
+              primary-title
+              color="primary darken-1"
+              class="headline primary title-text"
+            >
+              My Venues
+            </v-card-title>
+
+            <v-card-text>
+              <!-- Code for venues here -->
+            </v-card-text>
+          </v-card>
+        </v-flex>
+
+      </v-layout>
+
+      <v-layout fluid jusify-center list-grid class="venues-layout">
+
+        <v-flex xs12>
+          <v-card
+            elevation="10"
+            class="reviews-card"
+          >
+
+            <v-card-title
+              primary-title
+              color="primary darken-1"
+              class="headline primary title-text"
+            >
+              My Reviews
+            </v-card-title>
+
+            <v-card-text>
+              <!-- Code for venues here -->
+            </v-card-text>
+          </v-card>
+        </v-flex>
+
+      </v-layout>
+
 
     </div>
 </template>
@@ -62,7 +214,9 @@
           givenName: null,
           familyName: null
         },
-        userPhoto: null
+        userPhoto: null,
+        uploadPhotoDialog: false,
+        editProfileDialog: false
       }
     },
     methods: {
@@ -151,6 +305,28 @@
   .last-name {
     padding: 20px 0 0 10px;
     -webkit-text-fill-color: $primary;
+  }
+
+  .upload-photo-btn {
+    right: 30px;
+    bottom: 30px;
+  }
+
+  .edit-profile-btn {
+    right:15px;
+    bottom: 15px;
+  }
+
+  .image-card {
+    background-color: $lighter-secondary;
+  }
+
+  .venues-card {
+    margin: 20px;
+  }
+
+  .reviews-card {
+    margin: 20px;
   }
 
 </style>
