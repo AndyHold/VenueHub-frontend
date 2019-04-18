@@ -1,6 +1,7 @@
 <template>
   <div id="search">
     <v-toolbar fixed color="primary" class="page-header" z-index="9999">
+      <navigation-menu title="true"></navigation-menu>
       <v-toolbar-title class="page-title">Search Venues</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="logout-button">
@@ -339,10 +340,13 @@
   import {endpoint} from "../../Utilities/endpoint";
   import UserStorage from "../../DataStorage/userStorage";
   import {sendLogoutRequest} from "../../Utilities/loginPortal";
+  import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
 
   export default {
 
     name: "Search",
+
+    components: {NavigationMenu},
 
     data () {
       return {

@@ -9,6 +9,16 @@
     >
       <template v-slot:activator="{ on }">
         <v-btn
+          v-if="title"
+          round
+          fab
+          color="blue-grey lighten-4"
+          v-on="on"
+        >
+          <v-icon color="primary">apps</v-icon>
+        </v-btn>
+        <v-btn
+          v-else
           round
           fab
           class="menu-button"
@@ -62,7 +72,8 @@
           loggedIn: true,
           loggedOut: true
         }
-      ]
+      ],
+      title: false
     }),
     methods: {
       goToURL: function (URL) {

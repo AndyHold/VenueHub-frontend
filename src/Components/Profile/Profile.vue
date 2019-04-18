@@ -2,6 +2,7 @@
     <div id="profile">
       <!-- Title Bar -->
       <v-toolbar fixed color="primary" class="page-header" z-index="9999">
+        <navigation-menu title="true"></navigation-menu>
         <v-toolbar-title class="page-title">Welcome {{ user.givenName }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items class="logout-button">
@@ -16,9 +17,11 @@
         <v-flex xs4>
           <v-card elevation="10" class="profile-card">
             <v-layout column list-grid>
+
+              <!-- Photo and upload button -->
               <v-flex xs4>
                 <v-card
-                  class="image-card"
+                  class="card-background"
                   flat
                 >
                   <v-flex>
@@ -39,7 +42,7 @@
                   <v-dialog
                     v-model="uploadPhotoDialog"
                     persistent
-                    full-width
+                    width="80%"
                   >
 
                     <template v-slot:activator="{ on }">
@@ -55,7 +58,7 @@
                       </v-btn>
                     </template>
 
-                    <v-card>
+                    <v-card class="card-background">
                       <v-card-title
                         class="headline primary title-text"
                         color="primary darken-1"
@@ -64,21 +67,44 @@
                       </v-card-title>
 
                       <v-card-media>
-                        <div class="uploader"
-                             @dragenter="onDragEnter"
-                             @dragleave="onDragLeave"
-                             @dragover.prevent
-                             @drop="onDrop"
-                             :class="{ dragging: isDragging }"
-                             >
-                          <v-icon color="primary" x-large>cloud_upload</v-icon>
-                          <p>Drag your image here</p>
-                          <div>OR</div>
-                          <div class="file-input">
-                            <label for="file">Select a file</label>
-                            <label type="file" id="file" @change="onInputChange"></label>
+                        <v-spacer align="center">
+                          <div v-if="imageUrl" class="image-preview">
+                            <h2>Preview</h2>
+                            <v-img
+                              :src="imageUrl"
+                              width="35%"
+                              class="profile-photo"
+                              aspect-ratio="1"
+                            ></v-img>
                           </div>
-                        </div>
+                          <div class="uploader"
+                               @dragenter="onDragEnter"
+                               @dragleave="onDragLeave"
+                               @dragover.prevent
+                               @drop="onDrop"
+                               :class="{ dragging: isDragging }"
+                               >
+                            <v-icon color="white" x-large>cloud_upload</v-icon>
+                            <p>Drag your image here</p>
+                            <div>OR</div>
+                            <div class="file-input">
+                              <v-text-field
+                                prepend-icon="attach_file"
+                                v-model="imageName"
+                                :value="imageName"
+                                label="Select Image"
+                                v-on:click="pickFile"
+                                clearable></v-text-field>
+                              <input
+                                type="file"
+                                style="display: none"
+                                ref=image
+                                accept="image/png,image/jpeg"
+                                @change="onInputChange"
+                              >
+                            </div>
+                          </div>
+                        </v-spacer>
                         <!-- code to upload image here -->
                       </v-card-media>
 
@@ -87,11 +113,12 @@
                         <v-btn
                           flat
                           color="success darken-1"
+                          v-on:click="uploadPhoto"
                         >Upload</v-btn>
                         <v-btn
                           flat
                           color="error darken-1"
-                          @click="uploadPhotoDialog = false"
+                          v-on:click="uploadPhotoDialog = false"
                           >Close</v-btn>
                       </v-card-actions>
                     </v-card>
@@ -99,6 +126,9 @@
                   </v-dialog>
                 </v-card>
               </v-flex>
+              <!-- End of photo and upload button -->
+
+              <!-- Profile Name and edit profile button -->
               <v-layout xs4 row>
                 <v-spacer></v-spacer>
                 <h4 class="display-1 first-name font-weight-light">
@@ -112,7 +142,7 @@
                 <v-dialog
                   v-model="editProfileDialog"
                   persistent
-                  full-width
+                  width="40%"
                 >
 
                   <template v-slot:activator="{ on }">
@@ -128,7 +158,7 @@
                     </v-btn>
                   </template>
 
-                  <v-card>
+                  <v-card class="card-background">
                     <v-card-title
                       class="headline primary title-text"
                       color="primary darken-1"
@@ -137,7 +167,82 @@
                     </v-card-title>
 
                     <v-card-text>
-                      <!-- code to edit profile here -->
+                      <v-container grid-list-md>
+                        <v-layout wrap>
+
+                          <!-- Given Name -->
+                          <v-flex xs12 sm6 md6>
+                            <v-text-field
+                              label="First Name"
+                              hint="Enter your given name here"
+                              :value="givenName"
+                              v-model="givenName"
+                              @focus="givenNameErrors = []"
+                              @blur="validateGivenName"
+                              :error-messages="givenNameErrors"
+                              v-on:keyup.enter="signup"
+                            ></v-text-field>
+                          </v-flex>
+
+                          <!-- Family Name -->
+                          <v-flex xs12 sm6 md6>
+                            <v-text-field
+                              label="Last Name"
+                              hint="Enter your family name here"
+                              :value="familyName"
+                              v-model="familyName"
+                              @focus="familyNameErrors = []"
+                              @blur="validateFamilyName"
+                              :error-messages="familyNameErrors"
+                              v-on:keyup.enter="signup"
+                            ></v-text-field>
+                          </v-flex>
+
+                          <!-- Password -->
+                          <v-flex xs12>
+                            <v-text-field
+                              label="Current Password"
+                              type="password"
+                              hit="Enter your current password here"
+                              :value="oldPassword"
+                              v-model="oldPassword"
+                              @focus="oldPasswordErrors = []"
+                              @blur="validateOldPassword"
+                              :error-messages="oldPasswordErrors"
+                            ></v-text-field>
+                          </v-flex>
+                          <v-flex xs12>
+                            <v-text-field
+                              label="New Password"
+                              type="password"
+                              hit="Enter your new password here"
+                              :value="newPassword"
+                              v-model="newPassword"
+                              @focus="newPasswordErrors = []"
+                              @blur="validateNewPassword"
+                              :error-messages="newPasswordErrors"
+                            ></v-text-field>
+                          </v-flex>
+                          <v-flex xs12>
+                            <v-text-field
+                              label="Confirm New Password"
+                              type="password"
+                              hit="Enter your new password again here"
+                              :value="confirmNewPassword"
+                              v-model="confirmNewPassword"
+                              @focus="newPasswordErrors = []"
+                              @blur="validateNewPassword"
+                              :error-messages="newPasswordErrors"
+                              v-on:keyup.enter="editUser"
+                            ></v-text-field>
+                          </v-flex>
+
+                          <v-flex xs12>
+                            <h4 class="information">Please change the fields you wish to edit</h4>
+                          </v-flex>
+
+                        </v-layout>
+                      </v-container>
                     </v-card-text>
 
                     <v-card-actions>
@@ -145,6 +250,7 @@
                       <v-btn
                         flat
                         color="success darken-1"
+                        v-on:click="editUser"
                       >Accept</v-btn>
                       <v-btn
                         flat
@@ -156,6 +262,8 @@
 
                 </v-dialog>
               </v-layout>
+              <!-- End of profile Name and edit profile button -->
+
             </v-layout>
           </v-card>
         </v-flex>
@@ -167,7 +275,7 @@
         <v-flex xs12>
           <v-card
             elevation="10"
-            class="venues-card"
+            class="card-background venues-card"
           >
 
             <v-card-title
@@ -191,7 +299,7 @@
         <v-flex xs12>
           <v-card
             elevation="10"
-            class="reviews-card"
+            class="card-background reviews-card"
           >
 
             <v-card-title
@@ -218,11 +326,16 @@
 
 <script>
   import UserStorage from "../../DataStorage/userStorage";
-  import {sendLogoutRequest} from "../../Utilities/loginPortal";
+  import {sendLoginRequest, sendLogoutRequest} from "../../Utilities/loginPortal";
   import {endpoint} from "../../Utilities/endpoint";
+  import {putProfilePhoto, sendEditUserRequest} from "./ProfileService";
+  import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
 
   export default {
     name: "Profile",
+
+    components: {NavigationMenu},
+
     data () {
       return {
         user: {
@@ -236,18 +349,56 @@
         uploadPhotoDialog: false,
         editProfileDialog: false,
         isDragging: false,
-        dragCount: 0
+        dragCount: 0,
+        imageName: '',
+        imageFile: '',
+        imageUrl: '',
+        newPassword: '',
+        oldPassword: '',
+        confirmNewPassword: '',
+        editPassword: false,
+        editName: false,
+        oldPasswordIsValid: false,
+        oldPasswordErrors: [],
+        newPasswordIsValid: false,
+        newPasswordErrors: [],
+        givenName: null,
+        hasValidGivenName: false,
+        givenNameErrors: [],
+        familyName: null,
+        hasValidFamilyName: false,
+        familyNameErrors: [],
+        hasValidEditData: false
       }
     },
+
+    computed: {
+      // TODO: fix this (disable accept till fields are changed)
+      editFieldsChanged() {
+        return (this.givenName !== this.user.givenName || this.familyName !== this.user.familyName || this.newPassword !== null || this.oldPassword !== null);
+      }
+    },
+
+    watch: {
+      "imageName": {
+        handler: "onImageNameChanged",
+        immediate: true
+      }
+    },
+
     methods: {
+
       onInputChange: function(event) {
-        console.log(event);
+        const files = event.target.files;
+        this.processFile(files);
       },
+
       onDragEnter: function(event) {
         event.preventDefault();
         this.dragCount++;
         this.isDragging = true;
       },
+
       onDragLeave: function(event) {
         event.preventDefault();
         this.dragCount--;
@@ -255,12 +406,34 @@
           this.isDragging = false;
         }
       },
-      onDrop: function(e) {
+
+      onDrop: function(event) {
+        const files = event.dataTransfer.files;
+        this.processFile(files);
+        event.preventDefault();
 
       },
+
+      processFile: function(files) {
+        if (files.length > 0) {
+          this.imageName = files[0].name;
+          const fileReader = new FileReader();
+          fileReader.readAsDataURL(files[0]);
+          fileReader.addEventListener('load', () => {
+            this.imageUrl = fileReader.result;
+            this.imageFile = files[0];
+          })
+        } else {
+          this.imageName = '';
+          this.imageFile = '';
+          this.imageUrl = '';
+        }
+      },
+
       isLoggedOn: function () {
         return UserStorage.methods.isLoggedIn();
       },
+
       logout: async function () {
         try {
           await sendLogoutRequest();
@@ -274,18 +447,168 @@
         }
         this.$router.go(0);
       },
+
       getUserPhoto: function () {
-        let path = endpoint(`/users/${this.user.userId}/photo`);
-        this.userPhoto = path;
-        console.log(path);
+        this.userPhoto = endpoint(`/users/${this.user.userId}/photo`);
+      },
+
+      pickFile: function() {
+        this.$refs.image.click();
+      },
+
+      onImageNameChanged: function() {
+        if (this.imageName === null) {
+          this.imageFile = '';
+          this.imageUrl = '';
+        }
+      },
+
+      uploadPhoto: function() {
+        const fileType = this.imageFile.type;
+        const fileSize = this.imageFile.size;
+
+        // TODO: do something with filesize here
+
+        let fileReader = new FileReader();
+        fileReader.readAsBinaryString(this.imageFile);
+        fileReader.addEventListener("load", async () => {
+          const fileContents = fileReader.result;
+          let response = await putProfilePhoto(fileContents, fileType);
+          console.log(response);
+          if (response.status === 201) {
+            console.log("good");
+            //success
+          } else {
+            console.log(response.status);
+          }
+        });
+      },
+
+      validateOldPassword: async function () {
+        let response = await sendLoginRequest({"username": UserStorage.data.username, "password": this.oldPassword});
+
+        if (response.status === 200) {
+          this.oldPasswordIsValid = true;
+          this.oldPasswordErrors = [];
+        } else {
+          this.oldPasswordIsValid = false;
+          this.oldPasswordErrors.push("Incorrect password, please try again")
+        }
+      },
+
+      validateNewPassword: function () {
+        // temporary just check length > 1
+        if (!this.newPassword) {
+          this.newPasswordIsValid = false;
+          this.newPasswordErrors.push("Please enter a valid password");
+        } else if (this.newPassword.length > 256) {
+          this.newPasswordIsValid = false;
+          this.newPasswordErrors.push(`Your password is too long, character limit is 256, you have ${this.newUser.password.length}`);
+        } else if (!this.confirmNewPassword) {
+          this.newPasswordIsValid = false;
+          this.newPasswordErrors.push("Please confirm your password");
+        } else {
+          if (this.newPassword !== this.confirmNewPassword) {
+            this.newPasswordIsValid = false;
+            this.newPasswordErrors.push("Your passwords do not match, please try again");
+          } else {
+            this.newPasswordIsValid = true;
+            this.newPasswordErrors = [];
+          }
+        }
+      },
+
+      validateGivenName: function () {
+        if (!this.givenName) {
+          this.hasValidGivenName = false;
+          this.givenNameErrors.push("First name is required");
+        } else if (this.givenName.length > 128) {
+          this.hasValidGivenName = false;
+          this.givenNameErrors.push(`Your first name is too long, character limit is 128, you have ${this.givenName.length}`);
+        } else if (/\d/.test(this.givenName)) {
+          this.hasValidGivenName = false;
+          this.givenNameErrors.push("First name cannot contain numbers");
+        } else {
+          this.hasValidGivenName = true;
+          this.givenNameErrors = [];
+        }
+      },
+
+      validateFamilyName: function() {
+        if (!this.familyName) {
+          this.hasValidFamilyName = false;
+          this.familyNameErrors.push("Last name is required");
+        } else if (this.familyName.length > 128) {
+          this.hasValidFamilyName = false;
+          this.familyNameErrors.push(`Your last name is too long, character limit is 128, you have ${this.familyName.length}`);
+        } else if (/\d/.test(this.familyName)) {
+          this.hasValidFamilyName = false;
+          this.familyNameErrors.push("Last name cannot contain numbers");
+        } else {
+          this.hasValidFamilyName = true;
+          this.familyNameErrors = [];
+        }
+      },
+
+      validateAll: function () {
+        this.validateFamilyName();
+        this.validateGivenName();
+
+        if (this.newPassword) {
+          this.validateNewPassword();
+          this.validateOldPassword();
+          this.hasValidEditData = (this.hasValidGivenName && this.hasValidFamilyName && this.newPasswordIsValid && this.oldPasswordIsValid);
+        } else {
+          this.hasValidEditData = (this.hasValidGivenName && this.hasValidFamilyName);
+        }
+      },
+
+      editUser: async function () {
+        this.validateAll();
+
+        if (this.hasValidEditData) {
+          let user = {};
+          if (this.givenName !== this.user.givenName) {
+            user.givenName = this.givenName;
+          }
+          if (this.familyName !== this.user.familyName) {
+            user.familyName = this.familyName;
+          }
+          if (this.newPassword) {
+            user.password = this.newPassword;
+          }
+          const response = await sendEditUserRequest(user);
+          if (response.status === 200) {
+            alert("Details updated successfully");
+            this.$router.go();
+          } else if (response.status === 400) {
+            this.newPasswordErrors.push("One of your fields is causing a server error, please update and try again");
+            this.givenNameErrors.push("One of your fields is causing a server error, please update and try again");
+            this.familyNameErrors.push("One of your fields is causing a server error, please update and try again");
+            this.newPasswordIsValid = false;
+            this.hasValidGivenName = false;
+            this.hasValidFamilyName = false;
+          } else if (response.status === 401 || response.status === 403) {
+            this.oldPasswordErrors.push("Authentication failed, please enter your current password again");
+            this.oldPasswordIsValid = false;
+          } else if (response.status === 404) {
+            alert("User not found, please log in again");
+            this.$router.push('/');
+          } else {
+            alert("Server error, please try again");
+          }
+        }
       }
     },
+
     mounted: async function () {
       this.user.userId = UserStorage.data.userId;
       this.user.username = UserStorage.data.username;
       this.user.email = UserStorage.data.email;
       this.user.givenName = UserStorage.data.givenName;
       this.user.familyName = UserStorage.data.familyName;
+      this.givenName = this.user.givenName;
+      this.familyName = this.user.familyName;
       this.getUserPhoto();
     }
   }
@@ -355,7 +678,7 @@
     bottom: 15px;
   }
 
-  .image-card {
+  .card-background {
     background-color: $lighter-secondary;
   }
 
@@ -365,6 +688,38 @@
 
   .reviews-card {
     margin: 20px;
+  }
+
+  .uploader {
+    justify-content: center;
+    align-content: center;
+    vertical-align: center;
+    width: 80%;
+    background-color: $primary;
+    height: 200px;
+    margin: 20px;
+    border: 3px dashed white;
+    padding: 10px;
+    p {
+      color: white;
+    }
+    div {
+      color: white;
+    }
+  }
+
+  .file-input {
+    -webkit-text-fill-color: white;
+    width:300px;
+  }
+
+  .image-preview {
+    margin: 10px;
+  }
+
+  .information {
+    -webkit-text-fill-color: $error;
+    text-align: right;
   }
 
 </style>

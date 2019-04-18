@@ -1,6 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <div id="home">
       <div>
+        <navigation-menu></navigation-menu>
         <h2>Welcome to</h2>
         <h1>Venue Hub</h1>
         <v-flex>
@@ -33,6 +34,7 @@
                 <v-card-text>
                   <v-container grid-list-md>
                     <v-layout wrap>
+
                       <v-flex xs12>
                         <v-text-field
                           label="Username or Email*"
@@ -45,6 +47,7 @@
                           v-on:keyup.enter="login"
                         ></v-text-field>
                       </v-flex>
+
                       <v-flex xs12>
                         <v-text-field
                           label="Password*"
@@ -58,6 +61,11 @@
                           v-on:keyup.enter="login"
                         ></v-text-field>
                       </v-flex>
+
+                      <v-flex xs12>
+                        <p class="warning-header">Mandatory fields marked with *</p>
+                      </v-flex>
+
                     </v-layout>
                   </v-container>
                 </v-card-text>
@@ -98,6 +106,7 @@
                 <v-card-text>
                   <v-container grid-list-md>
                     <v-layout wrap>
+
                       <v-flex xs12 sm6 md6>
                         <v-text-field
                           label="First Name*"
@@ -110,6 +119,7 @@
                           v-on:keyup.enter="signup"
                         ></v-text-field>
                       </v-flex>
+
                       <v-flex xs12 sm6 md6>
                         <v-text-field
                           label="Last Name*"
@@ -122,6 +132,7 @@
                           v-on:keyup.enter="signup"
                         ></v-text-field>
                       </v-flex>
+
                       <v-flex xs12>
                         <v-text-field
                           label="Username*"
@@ -134,6 +145,7 @@
                           v-on:keyup.enter="signup"
                         ></v-text-field>
                       </v-flex>
+
                       <v-flex xs12>
                         <v-text-field
                           label="Email*"
@@ -146,6 +158,7 @@
                           v-on:keyup.enter="signup"
                         ></v-text-field>
                       </v-flex>
+
                       <v-flex xs12>
                         <v-text-field
                           label="Password*"
@@ -159,6 +172,7 @@
                           v-on:keyup.enter="signup"
                         ></v-text-field>
                       </v-flex>
+
                       <v-flex xs12>
                         <v-text-field
                           label="Confirm Password*"
@@ -171,6 +185,10 @@
                           :error-messages="passwordErrors"
                           v-on:keyup.enter="signup"
                         ></v-text-field>
+                      </v-flex>
+
+                      <v-flex xs12>
+                        <p class="warning-header">Mandatory fields marked with *</p>
                       </v-flex>
                     </v-layout>
                   </v-container>
@@ -194,9 +212,13 @@
   import {sendLoginRequest, sendSignUpRequest} from "./../../Utilities/loginPortal";
   import UserStorage from "../../DataStorage/userStorage";
   import {getUser} from "./HomeService";
+  import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
 
   export default {
     name: "Home",
+
+    components: {NavigationMenu},
+
     data() {
       return {
         newUser: {
@@ -227,10 +249,12 @@
         hasValidPassword: false,
         passwordErrors: [],
         hasValidSignUpInput: false,
+        // TODO: swap this with the one from the story guide
         // taken from https://vuejs.org/v2/cookbook/form-validation.html
         emailExpression: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       };
     },
+
     methods: {
       async login() {
         let user;
@@ -248,7 +272,9 @@
             };
           }
           try {
-            const loginInfo = await sendLoginRequest(user);
+            const loginResponse = await sendLoginRequest(user);
+            let loginInfo = loginResponse.body;
+
             localStorage.setItem("userId", loginInfo.userId);
             localStorage.setItem("authToken", loginInfo.token);
             const userInfo = await getUser(loginInfo.userId);
@@ -260,15 +286,17 @@
           }
         }
       },
+
       async signup() {
         this.validateAllSignUpFields();
         if (this.hasValidSignUpInput) {
           try {
             await sendSignUpRequest(this.newUser);
-            const userInfo = await sendLoginRequest({
+            const userResponse = await sendLoginRequest({
               "username": this.newUser.username,
               "password": this.newUser.password
             });
+            const userInfo = userResponse.body;
             localStorage.setItem("userId", userInfo.userId);
             localStorage.setItem("authToken", userInfo.token);
             this.$router.push('/profile');
@@ -280,11 +308,13 @@
         }
 
       },
+
       closeLoginModal() {
         this.loginDialog = false;
         this.userIdentityErrors = [];
         this.loginPasswordErrors = [];
       },
+
       closeSignUpModal() {
         this.signupDialog = false;
         this.givenNameErrors = [];
@@ -293,6 +323,7 @@
         this.emailErrors = [];
         this.passwordErrors = [];
       },
+
       validateUserIdentity() {
         if (this.userIdentity) {
           if(this.emailExpression.test(this.userIdentity)) {
@@ -315,6 +346,7 @@
           this.userIdentityErrors.push("Either username or valid email is required");
         }
       },
+
       validateLoginPassword() {
         // temporary just check length > 1
         if (!this.loginPassword) {
@@ -328,6 +360,7 @@
           this.loginPasswordErrors = [];
         }
       },
+
       validatePassword() {
         // TODO: implement strength test here.
         // temporary just check length > 1
@@ -350,6 +383,7 @@
           }
         }
       },
+
       validateGivenName() {
         if (!this.newUser.givenName) {
           this.hasValidGivenName = false;
@@ -365,6 +399,7 @@
           this.givenNameErrors = [];
         }
       },
+
       validateFamilyName() {
         if (!this.newUser.familyName) {
           this.hasValidFamilyName = false;
@@ -380,6 +415,7 @@
           this.familyNameErrors = [];
         }
       },
+
       validateUsername() {
         if (this.newUser.username) {
           if(this.emailExpression.test(this.newUser.username)) {
@@ -397,6 +433,7 @@
           this.usernameErrors.push("Username is required");
         }
       },
+
       validateEmail() {
         if (this.newUser.email) {
           if (!this.emailExpression.test(this.newUser.email)) {
@@ -414,11 +451,13 @@
           this.emailErrors.push("Email is required");
         }
       },
+
       validateAllLoginFields() {
         this.validateUserIdentity();
         this.validateLoginPassword();
         this.hasValidLoginInput = (this.hasValidUserIdentity && this.hasValidLoginPassword);
       },
+
       validateAllSignUpFields() {
         this.validateGivenName();
         this.validateFamilyName();
@@ -464,6 +503,11 @@
 
   .title-text {
     color: $lighter-secondary;
+  }
+
+  .warning-header {
+    -webkit-text-fill-color: $error;
+    text-align: right;
   }
 
 </style>

@@ -6,11 +6,6 @@ $lighter-primary: #84CEEB;
 $dark-contrast: #8860D0;
 $lighter-secondary: #CFD8DC;
 $error: #e74c3c;
-
-
-$background: linear-gradient(to right, $lighter-secondary, $lighter-primary, $lighter-secondary);
-$normal-button-text: $lighter-secondary;
-$normal-button-color: linear-gradient(to right, $dark-contrast, $secondary);
-$error-button-text: $error;
-$error-button-color: linear-gradient(to right, #5680E9, #5AB9EA);
-$title-text: $primary;
+$info: #2196F3;
+$success: #4CAF50;
+$warning: #FFC107;

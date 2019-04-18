@@ -3,10 +3,8 @@ import {endpoint} from "./endpoint";
 
 
 export async function sendLoginRequest(user) {
-  const response = await superAgent.post(endpoint("/users/login"))
+  return await superAgent.post(endpoint("/users/login"))
     .send(user);
-
-  return response.body;
 }
 
 
