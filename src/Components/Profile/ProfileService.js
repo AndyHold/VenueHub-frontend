@@ -1,12 +1,10 @@
 import superAgent from "superagent";
 import {endpoint} from "../../Utilities/endpoint";
-import {Http} from "vue-resource";
 
 export async function putProfilePhoto (fileContents, fileType) {
   let authToken = localStorage.getItem("authToken");
   let userId = localStorage.getItem("userId");
-
-  console.log(Http);
+  console.log("here");
 
   return await superAgent.put(endpoint(`/users/${userId}/photo`))
     .set("x-authorization", authToken)

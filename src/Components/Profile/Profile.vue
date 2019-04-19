@@ -84,7 +84,8 @@
                                @drop="onDrop"
                                :class="{ dragging: isDragging }"
                                >
-                            <v-icon color="white" x-large>cloud_upload</v-icon>
+                            <v-icon v-if="isDragging" color="primary" x-large>cloud_upload</v-icon>
+                            <v-icon v-else color="white" x-large>cloud_upload</v-icon>
                             <p>Drag your image here</p>
                             <div>OR</div>
                             <div class="file-input">
@@ -397,6 +398,7 @@
         event.preventDefault();
         this.dragCount++;
         this.isDragging = true;
+        console.log(this.isDragging);
       },
 
       onDragLeave: function(event) {
@@ -404,6 +406,7 @@
         this.dragCount--;
         if (this.dragCount <= 0) {
           this.isDragging = false;
+          console.log(this.isDragging);
         }
       },
 
@@ -411,7 +414,9 @@
         const files = event.dataTransfer.files;
         this.processFile(files);
         event.preventDefault();
+        event.stopPropagation();
 
+        this.isDragging = false;
       },
 
       processFile: function(files) {
@@ -473,7 +478,9 @@
         fileReader.readAsBinaryString(this.imageFile);
         fileReader.addEventListener("load", async () => {
           const fileContents = fileReader.result;
+          console.log(fileContents);
           let response = await putProfilePhoto(fileContents, fileType);
+          console.log("here");
           console.log(response);
           if (response.status === 201) {
             console.log("good");
@@ -700,17 +707,36 @@
     margin: 20px;
     border: 3px dashed white;
     padding: 10px;
+
+    &.dragging {
+      background-color: white;
+      border: 3px dashed $primary;
+      p {
+        color: $primary;
+      }
+
+      div {
+        color: $primary;
+      }
+
+      .file-input {
+        -webkit-text-fill-color: $primary;
+        width:300px;
+      }
+    }
+
     p {
       color: white;
     }
+
     div {
       color: white;
     }
-  }
 
-  .file-input {
-    -webkit-text-fill-color: white;
-    width:300px;
+    .file-input {
+      -webkit-text-fill-color: white;
+      width:300px;
+    }
   }
 
   .image-preview {
