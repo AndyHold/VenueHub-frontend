@@ -110,17 +110,25 @@
                       </v-card-media>
 
                       <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                          flat
-                          color="success darken-1"
-                          v-on:click="uploadPhoto"
-                        >Upload</v-btn>
-                        <v-btn
-                          flat
-                          color="error darken-1"
-                          v-on:click="uploadPhotoDialog = false"
-                          >Close</v-btn>
+                        <v-spacer align="left">
+                          <v-btn
+                            flat
+                            color="error darken-1"
+                            v-on:click="deletePhoto"
+                            >Delete</v-btn>
+                        </v-spacer>
+                        <v-spacer align="right">
+                          <v-btn
+                            flat
+                            color="success darken-1"
+                            v-on:click="uploadPhoto"
+                          >Upload</v-btn>
+                          <v-btn
+                            flat
+                            color="error darken-1"
+                            v-on:click="uploadPhotoDialog = false"
+                            >Close</v-btn>
+                        </v-spacer>
                       </v-card-actions>
                     </v-card>
 
@@ -329,7 +337,7 @@
   import UserStorage from "../../DataStorage/userStorage";
   import {sendLoginRequest, sendLogoutRequest} from "../../Utilities/loginPortal";
   import {endpoint} from "../../Utilities/endpoint";
-  import {putProfilePhoto, sendEditUserRequest} from "./ProfileService";
+  import {deleteProfilePhoto, putProfilePhoto, sendEditUserRequest} from "./ProfileService";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
 
   export default {
@@ -471,24 +479,61 @@
       uploadPhoto: function() {
         const fileType = this.imageFile.type;
         const fileSize = this.imageFile.size;
+        if (fileSize > 20971520) {
+          // TODO: implement an alert message here.
+          // Image is too large, please resize or chose another image
+        } else {
+          let fileReader = new FileReader();
+          fileReader.readAsArrayBuffer(this.imageFile);
+          fileReader.addEventListener("load", async () => {
+            const fileContents = fileReader.result;
+            console.log(fileContents);
+            let response = await putProfilePhoto(fileContents, fileType);
+            if (response.status === 200) {
+              // TODO: implement an alert message here.
+              // Profile Picture Updated Successfully
+              this.$router.go();
+            } else if (response.status === 201) {
+              // TODO: implement an alert message here.
+              // Profile Picture Added Successfully
+              this.$router.go();
+            } else if (response.status === 400) {
+              // TODO: implement an alert message here.
+              // Bad image
+            } else if (response.status === 401) {
+              // TODO: implement an alert message here.
+              // Forbidden, you do not have permission to perform this action.
+            } else if (response.status === 403) {
+              // TODO: implement an alert message here.
+              // Unauthorized, please log in
+              this.$router.push('/');
+            } else if (response.status === 404) {
+              // TODO: implement an alert message here.
+              // User not found
+              this.$router.push('/');
+            }
+          });
+        }
+      },
 
-        // TODO: do something with filesize here
-
-        let fileReader = new FileReader();
-        fileReader.readAsBinaryString(this.imageFile);
-        fileReader.addEventListener("load", async () => {
-          const fileContents = fileReader.result;
-          console.log(fileContents);
-          let response = await putProfilePhoto(fileContents, fileType);
-          console.log("here");
-          console.log(response);
-          if (response.status === 201) {
-            console.log("good");
-            //success
-          } else {
-            console.log(response.status);
-          }
-        });
+      deletePhoto: async function () {
+        let response = await deleteProfilePhoto();
+        if (response.status === 200) {
+          // TODO: implement an alert message here.
+          // Photo Deleted Successfully
+          this.$router.go();
+        } else if (response.status === 401) {
+          // TODO: implement an alert message here.
+          // Forbidden, you do not have permission to perform this action.
+        } else if (response.status === 403) {
+          // TODO: implement an alert message here.
+          // Unauthorized, please log in
+          this.$router.push('/');
+        } else if (response.status === 404) {
+          // TODO: implement an alert message here.
+          // User not found
+          this.$router.push('/');
+        }
       },
 
       validateOldPassword: async function () {
