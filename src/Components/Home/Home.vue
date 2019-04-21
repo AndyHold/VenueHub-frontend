@@ -210,7 +210,7 @@
 
 <script>
   import {sendLoginRequest, sendSignUpRequest} from "./../../Utilities/loginPortal";
-  import UserStorage from "../../DataStorage/userStorage";
+  import UserStorage from "../../DataStorage/UserStorage";
   import {getUser} from "./HomeService";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
 

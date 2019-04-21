@@ -10,10 +10,8 @@
         </v-toolbar-items>
       </v-toolbar>
 
-      <!-- Main Container -->
+      <!-- Photo and Name Card -->
       <v-layout fluid justify-center list-grid class="main-container">
-
-        <!-- Photo and Name Card -->
         <v-flex xs4>
           <v-card elevation="10" class="profile-card">
             <v-layout column list-grid>
@@ -273,12 +271,25 @@
               </v-layout>
               <!-- End of profile Name and edit profile button -->
 
+              <!-- Username and email -->
+              <v-layout xs4 column>
+                <v-spacer align="center">
+                  <p class="username">
+                    ({{ user.username }})
+                  </p>
+                  <p v-if="user.email" class="email">
+                    {{ user.email }}
+                  </p>
+                </v-spacer>
+              </v-layout>
+              <!-- End of username and email -->
+
             </v-layout>
           </v-card>
         </v-flex>
-
       </v-layout>
 
+      <!-- My Venues -->
       <v-layout fluid jusify-center list-grid class="venues-layout">
 
         <v-flex xs12>
@@ -303,6 +314,7 @@
 
       </v-layout>
 
+      <!-- My Reviews -->
       <v-layout fluid jusify-center list-grid class="venues-layout">
 
         <v-flex xs12>
@@ -327,14 +339,12 @@
         <!-- End of Photo and Name Card -->
 
       </v-layout>
-      <!-- End of Main Container -->
-
 
     </div>
 </template>
 
 <script>
-  import UserStorage from "../../DataStorage/userStorage";
+  import UserStorage from "../../DataStorage/UserStorage";
   import {sendLoginRequest, sendLogoutRequest} from "../../Utilities/loginPortal";
   import {endpoint} from "../../Utilities/endpoint";
   import {deleteProfilePhoto, putProfilePhoto, sendEditUserRequest} from "./ProfileService";
@@ -791,6 +801,18 @@
   .information {
     -webkit-text-fill-color: $error;
     text-align: right;
+  }
+
+  .username {
+    -webkit-text-fill-color: $primary;
+    margin: 0;
+    padding: 0;
+  }
+
+  .email {
+    -webkit-text-fill-color: $primary;
+    font-size: 18px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
 
 </style>

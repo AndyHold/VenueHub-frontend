@@ -1,5 +1,5 @@
 import { endpoint } from "./endpoint";
-import UserStorage from "../DataStorage/userStorage";
+import UserStorage from "../DataStorage/UserStorage";
 import superAgent from "superagent";
 
 
@@ -10,12 +10,6 @@ export async function isLoggedIn(to, from, next) {
   // If the userId or authToken do not exist, display the home page
   if (!userId || !authToken) {
     next('/');
-    return;
-  }
-
-  // If the user is already logged in, continue
-  if (UserStorage.methods.isLoggedIn()) {
-    next();
     return;
   }
 

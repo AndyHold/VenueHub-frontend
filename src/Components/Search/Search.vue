@@ -181,146 +181,11 @@
         </v-card>
 
         <!-- Venue Cards -->
-        <v-card
+        <venue-card
           v-for="venue in venues"
-          elevation="10"
-          class="venue-card"
-          v-bind:key="venue.venueId"
-        >
-          <v-layout row>
-
-
-            <!-- Name and photo card -->
-            <v-flex xs3 d-flex>
-              <v-card>
-                <v-card-title
-                  class="title-text primary"
-                  primary-title
-                >
-                  {{ venue.venueName }}
-                </v-card-title>
-                <v-card-media>
-                  <v-img
-                    v-if="venue.primaryPhoto"
-                    :src="getVenuePhoto(venue)"
-                    aspect-ratio="1"
-                    class="primary-image"
-                  ></v-img>
-                  <v-img
-                    v-else
-                    src="src/Resources/Images/placeholder-image.jpg"
-                    aspect-ratio="1"
-                    class="primary-image"
-                  ></v-img>
-                </v-card-media>
-              </v-card>
-            </v-flex>
-            <!-- End of name and photo card -->
-
-            <!-- Description and category card -->
-            <v-flex xs6 d-flex>
-              <v-card>
-                <v-flex d-flex fill-height>
-                  <v-card-text>
-                    <v-layout column justify-space-between fill-height>
-
-                      <!-- Category Row -->
-                      <v-layout row>
-                        <v-flex xs4 class="left-column">
-                          Category
-                        </v-flex>
-                        <v-flex xs8 class="right-column">
-                          {{ getCategoryName(venue.categoryId) }}
-                        </v-flex>
-                      </v-layout>
-
-                      <!-- Description Row -->
-                      <v-flex>
-                        <v-layout row>
-                          <v-flex xs4 class="left-column">
-                            Description
-                          </v-flex>
-                          <v-flex xs8 class="right-column">
-                            {{ venue.shortDescription }}
-                          </v-flex>
-                        </v-layout>
-                      </v-flex>
-
-                      <!-- Star Rating Row -->
-                      <v-flex>
-                        <v-layout row>
-                          <v-flex xs4 class="left-column">
-                            Star Rating
-                          </v-flex>
-                          <v-flex xs8 class="right-column">
-                            <v-rating
-                              v-model="venue.meanStarRating"
-                              length="5"
-                              half-increments
-                              readonly
-                            ></v-rating>
-                          </v-flex>
-                        </v-layout>
-                      </v-flex>
-
-                      <!-- Cost Rating Row -->
-                      <v-flex>
-                        <v-layout row>
-                          <v-flex xs4 class="left-column">
-                            Cost Rating
-                          </v-flex>
-                          <v-flex xs8 class="right-column">
-                            <v-rating
-                              v-model="venue.modeCostRating"
-                              length="4"
-                              readonly
-                            ></v-rating>
-                          </v-flex>
-                        </v-layout>
-                      </v-flex>
-
-                      <!-- Distance Row -->
-                      <v-layout v-if="venue.distance" row>
-                        <v-flex xs4 class="left-column">
-                          Distance
-                        </v-flex>
-                        <v-flex xs8 class="right-column">
-                          {{ venue.distance }} km
-                        </v-flex>
-                      </v-layout>
-
-                    </v-layout>
-                  </v-card-text>
-                </v-flex>
-              </v-card>
-            </v-flex>
-            <!-- End of description and category card -->
-
-            <!-- Location and City card -->
-            <v-flex xs3 d-flex>
-              <v-card>
-                <v-layout column justify-space-between fill-height>
-                  <v-card-title
-                    class="title-text primary"
-                    primary-title
-                  >
-                    {{ venue.city }}
-                  </v-card-title>
-                  <v-flex d-flex fluid>
-                    <v-card-media d-flex fill-height>
-                      <div
-                        :id="getMapPanelIdFromVenueId(venue.venueId)"
-                        class="map-panel"
-                      ></div>
-                    </v-card-media>
-                  </v-flex>
-                </v-layout>
-              </v-card>
-            </v-flex>
-            <!-- End of location and City card -->
-
-          </v-layout>
-        </v-card>
+          :venue="venue"
+          :categories="categories">
+        </venue-card>
         <!-- End of Venue Cards -->
 
       </v-flex>
@@ -333,20 +198,19 @@
 
   import {getCategories, getVenues} from "./SearchService";
   import 'ol/ol.css';
-  import {Map, View} from 'ol';
-  import OSM from "ol/source/OSM";
-  import TileLayer from 'ol/layer/Tile';
-  import {fromLonLat} from "ol/proj";
-  import {endpoint} from "../../Utilities/endpoint";
-  import UserStorage from "../../DataStorage/userStorage";
+  import UserStorage from "../../DataStorage/UserStorage";
   import {sendLogoutRequest} from "../../Utilities/loginPortal";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
+  import VenueCard from "./VenueCard/VenueCard";
 
   export default {
 
     name: "Search",
 
-    components: {NavigationMenu},
+    components: {
+      NavigationMenu,
+      VenueCard
+    },
 
     data () {
       return {
@@ -408,42 +272,18 @@
     },
 
     methods: {
-      getVenuePhoto: function (venue) {
-        return endpoint(`/venues/${venue.venueId}/photos/${venue.primaryPhoto}`);
-      },
-      getCategoryName: function (categoryId) {
-        for (let index in this.categories) {
-          if (categoryId === this.categories[index].categoryId) {
-            return this.categories[index].categoryName;
-          }
-        }
-      },
-      makeMap: function (venue) {
-        return new Map({
-          target: this.getMapPanelIdFromVenueId(venue.venueId),
-          layers: [
-            new TileLayer({
-              source: new OSM()
-            })
-          ],
-          view: new View({
-            center: fromLonLat([venue.longitude, venue.latitude]),
-            zoom: 18
-          })
-        });
-      },
-      getMapPanelIdFromVenueId: function (venueId) {
-        return `map-${venueId}`;
-      },
+
       onQueriesChanged: async function () {
         this.startIndex = 0;
         let results = await getVenues(this.queries, null, null);
         this.numberOfResults = results.length;
         this.venues = await getVenues(this.queries, this.startIndex, this.count);
       },
+
       onStartIndexChanged: async function () {
         this.venues = await getVenues(this.queries, this.startIndex, this.count);
       },
+
       getLocation: function () {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition((position) => {
@@ -455,6 +295,7 @@
           this.queries.myLongitude = null;
         }
       },
+
       onLatitudeChanged: function () {
         if (this.queries.myLatitude && !this.sortContainsDistance()) {
           this.sortableFields.push(
@@ -467,6 +308,7 @@
           this.sortableFields.pop();
         }
       },
+
       sortContainsDistance: function () {
         for (let field in this.sortableFields) {
           if (this.sortableFields.hasOwnProperty(field) && field.hasOwnProperty("itemValue") && field.itemValue === "DISTANCE") {
@@ -475,9 +317,11 @@
         }
         return false;
       },
+
       isLoggedOn: function () {
         return UserStorage.methods.isLoggedIn();
       },
+
       logout: async function () {
         try {
           await sendLogoutRequest();
@@ -491,6 +335,7 @@
         }
         this.$router.go(0);
       },
+
       getPageRange: function(btn) {
         let pageRange = "";
         if (this.numberOfResults === 0) {
@@ -547,6 +392,7 @@
           }
         }
       },
+
       canMove: function(btn) {
         switch(btn) {
           case 0:
@@ -555,6 +401,7 @@
             return !(this.numberOfResults - this.startIndex > 10);
         }
       },
+
       movePage: function(btn) {
         if (this.startIndex <= 20) {
           this.startIndex = btn * 10;
@@ -566,6 +413,7 @@
           this.startIndex += (btn - 3.0) * 10;
         }
       },
+
       isCurrentPage: function(btn) {
         switch(btn) {
           case 0:
@@ -589,6 +437,7 @@
 
         }
       }
+
     },
 
     mounted: async function () {
@@ -597,16 +446,12 @@
       this.numberOfResults = results.length;
       this.venues = await getVenues(this.queries, this.startIndex, this.count);
       this.getLocation();
-
-      // Create each map
-      for (let index in this.venues) {
-        this.makeMap(this.venues[index]);
-      }
     }
   }
 </script>
 
 <style lang="scss" scoped>
+
   @import "../../Resources/StyleSheets/variables";
 
   #search {
@@ -625,12 +470,6 @@
     padding: 150px 20px 20px;
   }
 
-  .title-text {
-    color: $lighter-secondary;
-    font-size: 23px;
-    justify-content: center;
-  }
-
   .page-title {
     padding: 65px 0 0 130px;
     -webkit-text-fill-color: $lighter-secondary;
@@ -639,31 +478,6 @@
 
   .logout-button {
     margin: 65px 0 0;
-  }
-
-  .primary-image {
-    margin: 10px;
-  }
-
-  .left-column {
-    font-size: 18px;
-    text-align: right;
-    padding: 0 10px 0 0;
-  }
-
-  .right-column {
-    font-size: 18px;
-    text-align: left;
-    padding: 0 0 0 10px;
-  }
-
-  .map-panel {
-    height: 100%;
-    padding: 20px;
-  }
-
-  .venue-card {
-    margin-bottom: 20px;
   }
 
   .search-criteria-card {
