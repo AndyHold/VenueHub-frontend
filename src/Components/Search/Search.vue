@@ -32,12 +32,14 @@
 
             <!-- City search text field -->
             <v-flex xs4 d-flex class="input-padding">
-              <v-text-field
+              <v-select
                 label="City"
                 hint="Search for a venue by city"
+                :items="cities"
                 v-model="queries.city"
                 :value="queries.city"
-              ></v-text-field>
+                clearable
+              ></v-select>
             </v-flex>
             <!-- End of city search text field -->
 
@@ -229,8 +231,10 @@
           myLatitude: null,
           myLongitude: null
         },
+
         startIndex: 0,
         count: 10,
+
         sortableFields: [
           {
             itemValue: "STAR_RATING",
@@ -241,13 +245,16 @@
             itemText: "Cost Rating",
           }
         ],
+
         venues: [],
         categories: [],
+        cities: [],
+
         numberOfResults: 0
       }
     },
 
-  computed: {
+    computed: {
       myLatitude() {
         return this.queries.myLatitude;
       }
@@ -275,13 +282,11 @@
 
       onQueriesChanged: async function () {
         this.startIndex = 0;
-        let results = await getVenues(this.queries, null, null);
-        this.numberOfResults = results.length;
-        this.venues = await getVenues(this.queries, this.startIndex, this.count);
+        this.getVenuesWithQueries();
       },
 
       onStartIndexChanged: async function () {
-        this.venues = await getVenues(this.queries, this.startIndex, this.count);
+        this.getVenuesWithQueries();
       },
 
       getLocation: function () {
@@ -436,16 +441,36 @@
         } else if (this.startIndex > 20 && this.numberOfResults - this.startIndex <= 20.0) {
 
         }
+      },
+
+      getVenuesWithQueries: async function () {
+        let results = await getVenues(this.queries, null, null);
+        this.numberOfResults = results.length;
+        this.venues = await getVenues(this.queries, this.startIndex, this.count);
+        for (let i = 0; i < this.venues.length; i++) {
+          if (this.venues[i].meanStarRating === null) {
+            this.venues[i].meanStarRating = 3;
+          }
+          if (this.venues[i].modeCostRating === null) {
+            this.venues[i].modeCostRating = 0;
+          }
+
+        }
       }
 
     },
 
     mounted: async function () {
       this.categories = await getCategories();
-      let results = await getVenues(this.queries, null, null);
-      this.numberOfResults = results.length;
-      this.venues = await getVenues(this.queries, this.startIndex, this.count);
+      await this.getVenuesWithQueries();
       this.getLocation();
+
+      // Get all available cities (Note: I would change this if I had designed the back end)
+      for (let i = 0; i < this.venues.length; i++) {
+        if (this.cities.findIndex((value, index, object) => value === object) === -1) {
+          this.cities.push(this.venues[i].city);
+        }
+      }
     }
   }
 </script>

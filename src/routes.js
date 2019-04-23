@@ -4,6 +4,7 @@ import VueRouter from "vue-router";
 import Home from "./Components/Home/Home.vue";
 import Search from "./Components/Search/Search";
 import Profile from "./Components/Profile/Profile";
+import Venue from "./Components/Venue/Venue";
 
 import {isLoggedIn, isLoggedInOrOut, isNotLoggedIn} from "./Utilities/authenticator";
 
@@ -22,6 +23,11 @@ const routes = [
     path: "/profile",
     component: Profile,
     beforeEnter: isLoggedIn
+  },
+  {
+    path: "/venues/:venueId",
+    component: Venue,
+    beforeEnter: isLoggedInOrOut
   }
 ];
 

@@ -32,7 +32,7 @@
                     </v-img>
                     <v-img
                       v-else
-                      src="src/Resources/Images/placeholder-image.jpg"
+                      src="/src/Resources/Images/placeholder-image.jpg"
                       aspect-ratio="1"
                       class="profile-photo"
                     ></v-img>
@@ -347,7 +347,7 @@
   import UserStorage from "../../DataStorage/UserStorage";
   import {sendLoginRequest, sendLogoutRequest} from "../../Utilities/loginPortal";
   import {endpoint} from "../../Utilities/endpoint";
-  import {deleteProfilePhoto, putProfilePhoto, sendEditUserRequest} from "./ProfileService";
+  import {deleteProfilePhoto, getUserImage, putProfilePhoto, sendEditUserRequest} from "./ProfileService";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
 
   export default {
@@ -416,7 +416,6 @@
         event.preventDefault();
         this.dragCount++;
         this.isDragging = true;
-        console.log(this.isDragging);
       },
 
       onDragLeave: function(event) {
@@ -424,7 +423,6 @@
         this.dragCount--;
         if (this.dragCount <= 0) {
           this.isDragging = false;
-          console.log(this.isDragging);
         }
       },
 
@@ -471,8 +469,13 @@
         this.$router.go(0);
       },
 
-      getUserPhoto: function () {
-        this.userPhoto = endpoint(`/users/${this.user.userId}/photo`);
+      getUserPhoto: async function () {
+        let response = await getUserImage(this.user.userId);
+        if (response.status === 200) {
+          this.userPhoto = endpoint(`/users/${this.user.userId}/photo`);
+        } else {
+          this.userPhoto = false;
+        }
       },
 
       pickFile: function() {

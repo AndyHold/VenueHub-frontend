@@ -6,6 +6,9 @@ import Vuetify from 'vuetify';
 import "vuetify/src/stylus/app.styl";
 import 'vuetify/dist/vuetify.min.css';
 
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 Vue.use(Vuetify, {
   iconfont: 'md'
 });

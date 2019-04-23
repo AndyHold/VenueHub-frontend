@@ -67,8 +67,8 @@ export async function isNotLoggedIn(to, from, next) {
 
   console.log(userId);
   console.log(authToken);
-  // If the userId or authToken exist, go to the profile screen
-  if (userId || authToken) {
+  // If the userId and authToken exist, go to the profile screen
+  if (userId && authToken) {
     next('/profile');
   } else {
     next();
