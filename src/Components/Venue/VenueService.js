@@ -7,14 +7,39 @@ export async function putVenuePhoto (filecontents, filetype) {
 }
 
 
+export async function checkUserPhoto (userId) {
+  return superAgent.get(endpoint(`/users/${userId}/photo`))
+}
+
+
+export async function deleteVenuePhoto (venueId, photoFilename) {
+  let authToken = localStorage.getItem("authToken");
+
+  return superAgent.delete(endpoint(`/venues/${venueId}/photos/${photoFilename}`))
+    .set("x-authorization", authToken);
+}
+
+
 export async function sendVenueUpdate (editedVenue, currentVenue, venueId) {
   const authToken = localStorage.getItem("authToken");
 
   const venueDifferences = parseVenues(editedVenue, currentVenue);
-
+  console.log(venueDifferences);
   return superAgent.patch(endpoint(`/venues/${venueId}`))
     .set("x-authorization", authToken)
     .send(venueDifferences);
+}
+
+
+export async function requestVenueRatings (venue) {
+  return await superAgent.get(
+    endpoint(`/venues?adminId=${venue.admin.userId}&&
+    q=${venue.venueName}&&categoryId=${venue.category.categoryId}&&city=${venue.city}`));
+}
+
+
+export async function requestVenueReviews (venueId) {
+  return await superAgent.get(endpoint(`/venues/${venueId}/reviews`));
 }
 
 
@@ -46,4 +71,5 @@ let parseVenues = function (editedVenue, currentVenue) {
   if (editedVenue.longitude !== currentVenue.longitude) {
     venueDifferences.longitude = editedVenue.longitude;
   }
+  return venueDifferences;
 };

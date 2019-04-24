@@ -1,5 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <div id="venue">
+
     <!-- Title Bar -->
     <v-toolbar fixed color="primary" class="page-header" z-index="9999">
       <navigation-menu title="true"></navigation-menu>
@@ -10,6 +11,7 @@
       </v-toolbar-items>
     </v-toolbar>
 
+    <!-- Main photo and venue name -->
     <v-layout fluid justify-center list-grid class="main-container">
       <v-flex xs4>
         <v-card elevation="10" class="venue-card">
@@ -38,22 +40,22 @@
             </v-flex>
             <!-- End of photo -->
 
-            <!-- Profile Name and edit profile button -->
+            <!-- Venue name -->
             <v-layout xs4 row>
-              <v-spacer></v-spacer>
-              <h4 class="display-1 first-name font-weight-light">
-                {{ venue.venueName }}
-              </h4>
-              <v-spacer></v-spacer>
-
-
+              <v-spacer align="center">
+                <h4 class="display-1 font-weight-light">
+                  {{ venue.venueName }}
+                </h4>
+              </v-spacer>
             </v-layout>
-            <!-- End of profile Name and edit profile button -->
+            <!-- End of venue name -->
+
           </v-layout>
         </v-card>
       </v-flex>
     </v-layout>
 
+    <!-- Venue details -->
     <v-layout fluid justify-center list-grid class="info-card">
       <v-flex xs8>
         <v-card elevation="10">
@@ -120,10 +122,65 @@
                   </v-flex>
                   <v-flex xs8 class="right-column">
                     <h3 class="font-weight-regular">
-                      {{ getStartDate() }}
+                      {{ getStartDate(venue.dateAdded) }}
                     </h3>
                   </v-flex>
                 </v-layout>
+
+                <!-- Star Rating Row -->
+                <v-flex>
+                  <v-layout row>
+                    <v-flex xs4 class="left-column">
+                      <h3 class="font-weight-regular">
+                        Star Rating
+                      </h3>
+                    </v-flex>
+                    <v-flex xs8 class="right-column">
+                      <v-tooltip bottom>
+
+                        <template v-slot:activator="{ on }">
+                          <div v-on="on">
+                            <v-rating
+                              v-model="venue.meanStarRating"
+                              length="5"
+                              half-increments
+                              readonly
+                            ></v-rating>
+                          </div>
+                        </template>
+
+                        <span>{{ venue.meanStarRating }}</span>
+                      </v-tooltip>
+                    </v-flex>
+                  </v-layout>
+                </v-flex>
+
+                <!-- Cost Rating Row -->
+                <v-flex>
+                  <v-layout row>
+                    <v-flex xs4 class="left-column">
+                      <h3 class="font-weight-regular">
+                        Cost Rating
+                      </h3>
+                    </v-flex>
+                    <v-flex xs8 class="right-column">
+                      <v-tooltip bottom>
+
+                        <template v-slot:activator="{ on }">
+                          <div v-on="on">
+                            <v-rating
+                              v-model="venue.modeCostRating"
+                              length="4"
+                              readonly
+                            ></v-rating>
+                          </div>
+                        </template>
+
+                        <span>{{ venue.modeCostRating }}</span>
+                      </v-tooltip>
+                    </v-flex>
+                  </v-layout>
+                </v-flex>
 
               </v-flex>
 
@@ -146,8 +203,8 @@
                         :src="adminPhoto"
                         aspect-ratio="1"
                         class="profile-photo"
-                        height="150"
-                        width="150"
+                        height="225"
+                        width="225"
                       >
                       </v-img>
                       <v-img
@@ -155,8 +212,8 @@
                         src="/src/Resources/Images/placeholder-image.jpg"
                         aspect-ratio="1"
                         class="profile-photo"
-                        height="150"
-                        width="150"
+                        height="225"
+                        width="225"
                       ></v-img>
                     </v-spacer>
                   </v-flex>
@@ -189,9 +246,7 @@
 
               <!-- Description Row -->
               <v-flex>
-                <p v-if="longDescription">
-                  {{ venue.shortDescription }} {{ venue.longDescription }}
-                </p>
+                <pre class="description-text" v-if="longDescription">{{ venue.shortDescription }}<br/>{{ venue.longDescription }}</pre>
                 <p v-else>
                   {{ venue.shortDescription }}
                 </p>
@@ -200,10 +255,10 @@
               <!-- Button Row -->
               <v-spacer align="right">
                 <v-spacer v-if="venue.longDescription" align="right">
-                  <v-btn v-if="longDescription" v-on:click="toggleLongDescription" flat color="grey">
+                  <v-btn v-if="longDescription" v-on:click="toggleLongDescription" flat color="grey" class="description-button">
                     Show Less
                   </v-btn>
-                  <v-btn v-else v-on:click="toggleLongDescription" flat color="grey">
+                  <v-btn v-else v-on:click="toggleLongDescription" flat color="grey" class="description-button">
                     Show More
                   </v-btn>
                 </v-spacer>
@@ -319,7 +374,6 @@
                           @blur="validateShortDescription"
                           :error-messages="venueShortDescriptionErrors"
                           v-on:keyup="validateShortDescription"
-                          v-on:keyup.enter="editVenue"
                         ></v-text-field>
                       </v-flex>
 
@@ -334,7 +388,6 @@
                           @blur="validateLongDescription"
                           :error-messages="venueLongDescriptionErrors"
                           v-on:keyup="validateLongDescription"
-                          v-on:keyup.enter="editVenue"
                         ></v-textarea>
                       </v-flex>
 
@@ -404,42 +457,127 @@
     <v-layout class="info-card">
       <v-flex>
         <v-card>
-        <v-card-title class="headline primary title-text">
-          Photos
-        </v-card-title>
-        <v-card-media>
-          <v-container grid-list-sm fluid>
-            <v-layout row wrap>
-              <v-flex
-                v-for="photo in venue.photos"
-                :key="photo.photoFilename"
-                xs4
-                d-flex
+          <v-card-title class="headline primary title-text">
+            Photos
+          </v-card-title>
+          <v-card-media>
+            <photos-card
+            :photos="venue.photos"
+            :venueId="venueId"
+            :isAdmin="isAdmin"></photos-card>
+          </v-card-media>
+
+          <!-- Upload Button -->
+          <v-dialog
+            v-if="isAdmin"
+            v-model="uploadPhotoDialog"
+            persistent
+            width="80%"
+          >
+
+            <template v-slot:activator="{ on }">
+              <v-btn
+                class="upload-photo-btn"
+                fab
+                color="primary darken-1"
+                round
+                v-on="on"
+                absolute
               >
-                <v-card flat tile class="d-flex">
-                  <v-img
-                    :src="getVenuePhotoEndpoint(photo)"
-                    :lazy-src="getVenuePhotoEndpoint(photo)"
-                    aspect-ratio="1"
-                    class="grey lighten-2"
+                <v-icon>add</v-icon>
+              </v-btn>
+            </template>
+
+            <v-card class="card-background">
+              <v-card-title
+                class="headline primary title-text"
+                color="primary darken-1"
+              >
+                Upload a Venue Picture
+              </v-card-title>
+
+              <v-card-media>
+                <v-spacer align="center">
+                  <div v-if="imageUrl" class="image-preview">
+                    <h2>Preview</h2>
+                    <v-img
+                      :src="imageUrl"
+                      width="35%"
+                      class="profile-photo"
+                      aspect-ratio="1"
+                    ></v-img>
+                  </div>
+                  <div class="uploader"
+                       @dragenter="onDragEnter"
+                       @dragleave="onDragLeave"
+                       @dragover.prevent
+                       @drop="onDrop"
+                       :class="{ dragging: isDragging }"
                   >
-                    <template v-slot:placeholder>
-                      <v-layout
-                        fill-height
-                        align-center
-                        justify-center
-                        ma-0
+                    <v-icon v-if="isDragging" color="primary" x-large>cloud_upload</v-icon>
+                    <v-icon v-else color="white" x-large>cloud_upload</v-icon>
+                    <p>Drag your image here</p>
+                    <div>OR</div>
+                    <div class="file-input">
+                      <v-text-field
+                        prepend-icon="attach_file"
+                        v-model="imageName"
+                        :value="imageName"
+                        label="Select Image"
+                        v-on:click="pickFile"
+                        clearable></v-text-field>
+                      <input
+                        type="file"
+                        style="display: none"
+                        ref=image
+                        accept="image/png,image/jpeg"
+                        @change="onInputChange"
                       >
-                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-                      </v-layout>
-                    </template>
-                  </v-img>
-                </v-card>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card-media>
-      </v-card>
+                    </div>
+                  </div>
+                </v-spacer>
+              </v-card-media>
+
+              <v-card-actions>
+                <v-spacer align="right">
+                  <v-btn
+                    flat
+                    color="success darken-1"
+                    v-on:click="uploadPhoto"
+                  >Upload</v-btn>
+                  <v-btn
+                    flat
+                    color="error darken-1"
+                    v-on:click="cancelUpload"
+                  >Close</v-btn>
+                </v-spacer>
+              </v-card-actions>
+            </v-card>
+
+          </v-dialog>
+
+        </v-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Reviews Card -->
+    <v-layout class="info-card">
+      <v-flex>
+        <v-card>
+          <v-card-title class="headline primary title-text">
+            Reviews
+          </v-card-title>
+          <v-card-media>
+            <v-container fluid>
+              <v-layout row wrap>
+                <review-card
+                  v-for="review in reviews"
+                  :review="review"
+                ></review-card>
+              </v-layout>
+            </v-container>
+          </v-card-media>
+        </v-card>
       </v-flex>
     </v-layout>
 
@@ -456,8 +594,16 @@
   import {endpoint} from "../../Utilities/endpoint";
   import UserStorage from "../../DataStorage/UserStorage";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
+  import ReviewCard from "./ReviewCard/ReviewCard";
+  import PhotosCard from "./PhotosCard/PhotosCard";
   import {sendLogoutRequest} from "../../Utilities/loginPortal";
-  import {putVenuePhoto, sendVenueUpdate} from "./VenueService";
+  import {
+    checkUserPhoto,
+    putVenuePhoto,
+    requestVenueRatings,
+    requestVenueReviews,
+    sendVenueUpdate
+  } from "./VenueService";
   import {getCategories} from "../Search/SearchService";
 
   export default {
@@ -465,7 +611,9 @@
     name: "Venue",
 
     components: {
-      NavigationMenu
+      NavigationMenu,
+      ReviewCard,
+      PhotosCard
     },
 
     data: () => {
@@ -508,7 +656,8 @@
         validVenueLongDescription: false,
         venuePositionErrors: [],
         validVenuePosition: false,
-        hasValidInput: false
+        hasValidInput: false,
+        reviews: []
       }
   },
 
@@ -689,28 +838,8 @@
         }
       },
 
-      deletePhoto: async function () {
-        let response = await deleteProfilePhoto();
-        if (response.status === 200) {
-          // TODO: implement an alert message here.
-          // Photo Deleted Successfully
-          this.$router.go();
-        } else if (response.status === 401) {
-          // TODO: implement an alert message here.
-          // Forbidden, you do not have permission to perform this action.
-        } else if (response.status === 403) {
-          // TODO: implement an alert message here.
-          // Unauthorized, please log in
-          this.$router.push('/');
-        } else if (response.status === 404) {
-          // TODO: implement an alert message here.
-          // User not found
-          this.$router.push('/');
-        }
-      },
-
-      getStartDate: function () {
-        let date = new Date(this.venue["dateAdded"]);
+      getStartDate: function (reviewDate) {
+        let date = new Date(reviewDate);
         return date.toDateString();
       },
 
@@ -763,7 +892,7 @@
 
       validateShortDescription: function () {
         this.venueShortDescriptionErrors = [];
-        if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?]+$/i.test(this.editedVenue.shortDescription)) {
+        if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\n]+$/i.test(this.editedVenue.shortDescription)) {
           this.venueShortDescriptionErrors.push("Short Description uses invalid characters, please rephrase using only letter, numbers or the following: ,.+='\"(){}$%&#@!?");
           this.validVenueShortDescription = false;
         } else if (this.editedVenue.shortDescription.length > 128) {
@@ -776,7 +905,7 @@
 
       validateLongDescription: function () {
         this.venueLongDescriptionErrors = [];
-        if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?]+$/i.test(this.editedVenue.longDescription)) {
+        if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\n\t]+$/i.test(this.editedVenue.longDescription)) {
           this.venueLongDescriptionErrors.push("Long Description uses invalid characters, please rephrase using only letter, numbers or the following: ,.+='\"(){}$%&#@!?");
           this.validVenueLongDescription = false;
         } else if (this.editedVenue.longDescription.length > 2048) {
@@ -849,21 +978,52 @@
         if (this.hasValidInput) {
           let response = await sendVenueUpdate(this.editedVenue, this.venue, this.venueId);
           if (response.status === 400) {
-
+            // TODO: implement a custom pop up
+            // One or more of your fields have invalid values
           } else if (response.status === 401) {
-
+            // TODO: implement a custom pop up
+            // Forbidden, You do not have permission to perform this action.
           } else if (response.status === 403) {
-
+            // TODO: implement a custom pop up
+            // Unauthorized, please log in again
           } else if (response.status === 404) {
-
+            // TODO: implement a custom pop up
+            // This venue was not found.
           } else {
-
+            // TODO: implement a custom pop up
+            // Venue updated successfully
+            this.$router.go(0);
           }
         }
       },
 
       cancelEdit: function () {
+        this.setEditedVenue();
         this.editVenueDialog = false;
+      },
+
+      cancelUpload: function () {
+        this.uploadPhotoDialog = false;
+        this.imageFile = null;
+        this.imageUrl = null;
+        this.imageName = null;
+      },
+
+      checkAuthorPhoto: async function (userId) {
+        try {
+          await checkUserPhoto(userId);
+          return endpoint(`/users/${userId}/photo`);
+        } catch (error) {
+          return false;
+        }
+      },
+
+      getReviewAuthorPhotos: async function (reviews) {
+        for (let i = 0; i < reviews.length; i++) {
+          let userId = reviews[i].reviewAuthor.userId;
+          reviews[i]["authorPhoto"] = await this.checkAuthorPhoto(userId);
+        }
+        return reviews;
       }
     },
 
@@ -877,7 +1037,29 @@
         console.log(error);
         // TODO: add custom alert here
         // Venue not found
-        // this.$router.push('/search');
+        // this.$router; // go back ???
+      }
+      try {
+        let response = await requestVenueRatings(this.venue);
+        for (let i = 0; i < response.body.length; i++) {
+          if (this.venueId == response.body[i].venueId) {
+            this.venue.meanStarRating = response.body[i].meanStarRating;
+            this.venue.modeCostRating = response.body[i].modeCostRating;
+          }
+        }
+      } catch (error) {
+        console.log(error);
+        // TODO: add custom alert here
+        // Could not get venue ratings
+
+      }
+      try {
+        let response = await requestVenueReviews(this.venueId);
+        this.reviews = await this.getReviewAuthorPhotos(response.body);
+      } catch (error) {
+        console.log(error);
+        // TODO: add custom alert here
+        // Could not load reviews
       }
       this.isAdmin = this.venue["admin"].userId == UserStorage.data.userId;
       this.getAdminPhoto();
@@ -1015,6 +1197,22 @@
   .edit-venue-btn {
     right: 30px;
     Bottom: 30px;
+    z-index: 1;
+  }
+
+  .description-text {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+  }
+
+  .description-button {
+    margin-right: 60px;
+  }
+
+  .upload-photo-btn {
+    right: 30px;
+    bottom: 30px;
+    z-index: 1;
   }
 
 </style>
