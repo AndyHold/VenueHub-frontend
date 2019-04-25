@@ -41,8 +41,7 @@ export async function sendVenueUpdate (editedVenue, currentVenue, venueId) {
 
 export async function requestVenueRatings (venue) {
   return await superAgent.get(
-    endpoint(`/venues?adminId=${venue.admin.userId}&&
-    q=${venue.venueName}&&categoryId=${venue.category.categoryId}&&city=${venue.city}`));
+    endpoint(`/venues?adminId=${venue.admin.userId}&&q=${encodeURIComponent(venue.venueName)}&&categoryId=${venue.category.categoryId}&&city=${encodeURIComponent(venue.city)}`));
 }
 
 export async function requestVenueReviews (venueId) {

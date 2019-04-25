@@ -8,7 +8,7 @@
       <v-toolbar-title class="page-title">Welcome to {{ venue.venueName }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="logout-button">
-        <v-btn v-if="isLoggedOn()" color="blue-grey lighten-4" @click="logout" round fab><v-icon color="primary">logout</v-icon></v-btn>
+        <v-btn v-if="isLoggedIn" color="blue-grey lighten-4" @click="logout" round fab><v-icon color="primary">logout</v-icon></v-btn>
       </v-toolbar-items>
     </v-toolbar>
 
@@ -203,18 +203,20 @@
                         v-if="adminPhoto"
                         :src="adminPhoto"
                         aspect-ratio="1"
-                        class="profile-photo"
+                        class="round"
                         height="225"
                         width="225"
+                        v-on:click="goToUserPage(venue.admin.userId)"
                       >
                       </v-img>
                       <v-img
                         v-else
                         src="/src/Resources/Images/placeholder-image.jpg"
                         aspect-ratio="1"
-                        class="profile-photo"
+                        class="round"
                         height="225"
                         width="225"
+                        v-on:click="goToUserPage(venue.admin.userId)"
                       ></v-img>
                     </v-spacer>
                   </v-flex>
@@ -433,7 +435,7 @@
                       </v-layout>
 
                       <v-flex xs12>
-                        <p class="warning-header">Mandatory fields marked with *</p>
+                        <p class="warning-header">required fields marked with *</p>
                       </v-flex>
 
                     </v-layout>
@@ -599,10 +601,12 @@
     <v-layout class="info-card">
       <v-flex>
         <v-card>
+
           <v-card-title class="headline primary title-text">
             Reviews
           </v-card-title>
-          <v-responsive>
+
+          <v-card-actions>
             <v-spacer align="right">
 
               <!-- Add Review Dialog -->
@@ -743,6 +747,9 @@
               </v-dialog>
 
             </v-spacer>
+          </v-card-actions>
+
+          <v-responsive>
             <v-container fluid>
               <v-layout row wrap>
                 <review-card
@@ -753,6 +760,7 @@
               </v-layout>
             </v-container>
           </v-responsive>
+
         </v-card>
       </v-flex>
     </v-layout>
@@ -762,10 +770,6 @@
 
 <script>
 
-  import {Map, View} from 'ol';
-  import OSM from "ol/source/OSM";
-  import TileLayer from 'ol/layer/Tile';
-  import {fromLonLat} from "ol/proj";
   import {getUserImage, requestVenueDetails} from "../Search/VenueCard/VenueCardService";
   import {endpoint} from "../../Utilities/endpoint";
   import UserStorage from "../../DataStorage/UserStorage";
@@ -812,6 +816,7 @@
         editedVenue: {
           venueName: null,
           categoryId: null,
+          city: null,
           shortDescription: null,
           longDescription: null,
           address: null,
@@ -856,7 +861,8 @@
         validVenuePhotoDescription: false,
         venuePhotoDescriptionErrors: [],
         validVenuePhoto: false,
-        venuePhotoErrors: []
+        venuePhotoErrors: [],
+        isLoggedIn: false
       }
   },
 
@@ -869,25 +875,6 @@
 
     methods: {
 
-      makeMap: function (venue) {
-        return new Map({
-          target: this.getMapPanelIdFromVenueId(venue.venueId),
-          layers: [
-            new TileLayer({
-              source: new OSM()
-            })
-          ],
-          view: new View({
-            center: fromLonLat([venue.longitude, venue.latitude]),
-            zoom: 18
-          })
-        });
-      },
-
-      getMapPanelIdFromVenueId: function (venueId) {
-        return `map-${venueId}`;
-      },
-
       getCategoryName: function (categoryId) {
         for (let index in this.categories) {
           if (categoryId === this.categories[index].categoryId) {
@@ -896,19 +883,15 @@
         }
       },
 
-      getVenuePhoto: function (venue) {
-        return endpoint(`/venues/${venue.venueId}/photos/${venue.primaryPhoto}`);
-      },
-
       toggleLongDescription: async function () {
         this.longDescription = !this.longDescription;
       },
 
       getAdminPhoto: async function () {
-        let response = await getUserImage(this.venue.admin.userId);
-        if (response.status === 200) {
+        try {
+          await getUserImage(this.venue.admin.userId);
           this.adminPhoto = endpoint(`/users/${this.venue.admin.userId}/photo`);
-        } else {
+        } catch (error) {
           this.adminPhoto = false;
         }
       },
@@ -965,10 +948,6 @@
         }
       },
 
-      isLoggedOn: function () {
-        return UserStorage.methods.isLoggedIn();
-      },
-
       logout: async function () {
         try {
           await sendLogoutRequest();
@@ -1015,7 +994,6 @@
             await form.append("description", this.venuePhoto.description);
           }
           await form.append("makePrimary", this.venuePhoto.makePrimary.toString());
-          console.log(form.get("makePrimary"));
           try {
             let response = await putVenuePhoto(form, this.venueId);
             if (response.status === 200) {
@@ -1066,44 +1044,47 @@
       },
 
       validateVenueName: function () {
-        if (this.editedVenue.venueName !== null) {
+        if (this.editedVenue.venueName !== "") {
           this.venueNameErrors = [];
           this.validVenueName = true;
         } else if (this.editedVenue.city.length > 64) {
           this.venueNameErrors.push("City name is too long. Character limit is 64, you have " + this.editedVenue.city.length);
           this.validVenueName = false;
         } else {
-          this.venueNameErrors.push("City is mandatory");
+          this.venueNameErrors.push("City is required");
           this.validVenueName = false;
         }
       },
 
       validateCategory: function () {
-        if (this.editedVenue.categoryId !== null) {
+        if (this.editedVenue.categoryId !== "") {
           this.venueCategoryErrors = [];
           this.validVenueCategory = true;
         } else {
-          this.venueCategoryErrors.push("Category is mandatory");
+          this.venueCategoryErrors.push("Category is required");
           this.validVenueCategory = false;
         }
       },
 
       validateVenueCity: function () {
-        if (this.editedVenue.city !== null) {
+        if (this.editedVenue.city !== "") {
           this.venueCityErrors = [];
           this.validVenueCity = true;
         } else if (this.editedVenue.city.length > 128) {
           this.venueCityErrors.push("City name is too long. Character limit is 128, you have " + this.editedVenue.city.length);
           this.validVenueCity = false;
         } else {
-          this.venueCityErrors.push("City is mandatory");
+          this.venueCityErrors.push("City is required");
           this.validVenueCity = false;
         }
       },
 
       validateShortDescription: function () {
         this.venueShortDescriptionErrors = [];
-        if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\n]+$/i.test(this.editedVenue.shortDescription)) {
+        if (this.editedVenue.shortDescription.length === 0) {
+          this.venueShortDescriptionErrors.push("Short Description is required");
+          this.validVenueShortDescription = false;
+        } else if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\n]+$/i.test(this.editedVenue.shortDescription)) {
           this.venueShortDescriptionErrors.push("Short Description uses invalid characters, please rephrase using only letter, numbers or the following: ,.+='\"(){}$%&#@!?");
           this.validVenueShortDescription = false;
         } else if (this.editedVenue.shortDescription.length > 128) {
@@ -1116,7 +1097,10 @@
 
       validateLongDescription: function () {
         this.venueLongDescriptionErrors = [];
-        if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\n\t]+$/i.test(this.editedVenue.longDescription)) {
+        if (this.editedVenue.longDescription.length === 0) {
+          this.venueLongDescriptionErrors.push("Long Description is required");
+          this.validVenueLongDescription = false;
+        } else if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\n\t]*$/i.test(this.editedVenue.longDescription)) {
           this.venueLongDescriptionErrors.push("Long Description uses invalid characters, please rephrase using only letter, numbers or the following: ,.+='\"(){}$%&#@!?");
           this.validVenueLongDescription = false;
         } else if (this.editedVenue.longDescription.length > 2048) {
@@ -1129,7 +1113,10 @@
 
       validateAddress: function () {
         this.venueAddressErrors = [];
-        if (!/^[a-z0-9, ]+$/i.test(this.editedVenue.address)) {
+        if (this.editedVenue.address.length === 0) {
+          this.venueAddressErrors.push("Address is required");
+          this.validVenueAddress = false;
+        } else if (!/^[a-z0-9, ]+$/i.test(this.editedVenue.address)) {
           this.venueAddressErrors.push("Address contains invalid characters, only letters, numbers and comma's are allowed.");
           this.validVenueAddress = false;
         } else if (this.editedVenue.address.length > 256) {
@@ -1333,15 +1320,19 @@
           this.validVenuePhotoDescription = true;
         }
 
-        }
+        },
+
+      goToUserPage: function (userId) {
+        this.$router.push(`/profile/${userId}`)
+      }
     },
 
-    mounted: async function () {
+    mounted: async function () {this.isLoggedIn = localStorage.getItem("userId") !== null;
       this.venueId = parseInt(this.$route.params.venueId);
       try {
         let response = await requestVenueDetails(this.venueId);
         this.venue = response.body;
-        this.isAdmin = parseInt(this.venue["admin"].userId) === parseInt(UserStorage.data.userId);
+        this.isAdmin = parseInt(this.venue["admin"].userId) === parseInt(localStorage.getItem("userId"));
         this.setEditedVenue();
       } catch (error) {
         console.log(error);
@@ -1351,10 +1342,19 @@
       }
       try {
         let response = await requestVenueRatings(this.venue);
+        console.log(response);
         for (let i = 0; i < response.body.length; i++) {
           if (parseInt(this.venueId) === parseInt(response.body[i].venueId)) {
-            this.venue.meanStarRating = response.body[i].meanStarRating;
-            this.venue.modeCostRating = response.body[i].modeCostRating;
+            if (response.body[i].meanStarRating != null) {
+              this.venue.meanStarRating = response.body[i].meanStarRating;
+            } else {
+              this.venue.meanStarRating = 3;
+            }
+            if (response.body[i].modeCostRating != null) {
+              this.venue.modeCostRating = response.body[i].modeCostRating;
+            } else {
+              this.venue.modeCostRating = 0;
+            }
           }
         }
       } catch (error) {
@@ -1365,6 +1365,7 @@
       }
       try {
         let response = await requestVenueReviews(this.venueId);
+        console.log(response);
         this.reviews = await this.getReviewAuthorPhotos(response.body);
         this.checkCanReview();
       } catch (error) {
@@ -1427,8 +1428,12 @@
     padding: 20px;
   }
 
-  .profile-photo {
+  .round {
     border-radius: 25em;
+  }
+
+  .round :hover {
+    cursor: pointer;
   }
 
   .uploader {
@@ -1531,6 +1536,14 @@
 
   .description-column {
     padding: 20px;
+  }
+
+  pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
   }
 
 </style>

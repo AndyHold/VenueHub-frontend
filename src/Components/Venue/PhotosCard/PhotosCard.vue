@@ -12,7 +12,7 @@
             :src="getVenuePhotoEndpoint(photo)"
             :lazy-src="getVenuePhotoEndpoint(photo)"
             aspect-ratio="1"
-            class="grey lighten-2"
+            class="grey lighten-2 photo"
             v-on:click.stop="openPhotoDialog(photo)"
           >
             <template v-slot:placeholder>
@@ -229,6 +229,18 @@
   .description-text {
     font-family: 'Roboto', sans-serif;
     font-size: 14px;
+  }
+
+  .photo :hover {
+    cursor: pointer;
+  }
+
+  pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
   }
 
 </style>

@@ -1,11 +1,11 @@
-import superagent from "superagent";
+import superAgent from "superagent";
 import {endpoint} from "../../../Utilities/endpoint";
 
 
 export async function requestVenueDetails(venueId) {
-  return await superagent.get(endpoint(`/venues/${venueId}`));
+  return await superAgent.get(endpoint(`/venues/${venueId}`));
 }
 
 export async function getUserImage (userId) {
-  return await superagent.get(endpoint(`/users/${userId}/photo`))
+  return await superAgent.get(endpoint(`/users/${userId}/photo`))
 }

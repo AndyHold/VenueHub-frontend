@@ -4,6 +4,7 @@ import {endpoint} from "./endpoint";
 
 export async function sendLoginRequest(user) {
   return await superAgent.post(endpoint("/users/login"))
+    .type("application/json")
     .send(user);
 }
 

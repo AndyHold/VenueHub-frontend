@@ -25,18 +25,20 @@
                     v-if="review.authorPhoto"
                     :src="review.authorPhoto"
                     aspect-ratio="1"
-                    class="profile-photo"
+                    class="round"
                     height="225"
                     width="225"
+                    v-on:click="goToUserPage(review.reviewAuthor.userId)"
                   >
                   </v-img>
                   <v-img
                     v-else
                     src="/src/Resources/Images/placeholder-image.jpg"
                     aspect-ratio="1"
-                    class="profile-photo"
+                    class="round"
                     height="225"
                     width="225"
+                    v-on:click="goToUserPage(review.reviewAuthor.userId)"
                   ></v-img>
                 </v-spacer>
               </v-flex>
@@ -203,6 +205,10 @@
         let date = new Date(reviewDate);
         return date.toLocaleTimeString();
       },
+
+      goToUserPage: function (userId) {
+        this.$router.push(`/profile/${userId}`)
+      }
     }
   }
 </script>
@@ -219,8 +225,12 @@
     margin: 10px 20px;
   }
 
-  .profile-photo {
+  .round {
     border-radius: 25em;
+  }
+
+  .round :hover {
+    cursor: pointer;
   }
 
   .photo-description-column {
@@ -230,6 +240,14 @@
   .description-text {
     font-family: 'Roboto', sans-serif;
     font-size: 14px;
+  }
+
+  pre {
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
   }
 
 </style>

@@ -1,3 +1,3 @@
 export default {
-  backendUrl: "http://csse-s365.canterbury.ac.nz:4049"
+  backendUrl: "localhost:4941"
 };

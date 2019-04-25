@@ -116,7 +116,7 @@
                           @focus="givenNameErrors = []"
                           @blur="validateGivenName"
                           :error-messages="givenNameErrors"
-                          v-on:keyup.enter="signup"
+                          v-on:keyup.enter="signUp"
                         ></v-text-field>
                       </v-flex>
 
@@ -129,7 +129,7 @@
                           @focus="familyNameErrors = []"
                           @blur="validateFamilyName"
                           :error-messages="familyNameErrors"
-                          v-on:keyup.enter="signup"
+                          v-on:keyup.enter="signUp"
                         ></v-text-field>
                       </v-flex>
 
@@ -142,7 +142,7 @@
                           @focus="usernameErrors = []"
                           @blur="validateUsername"
                           :error-messages="usernameErrors"
-                          v-on:keyup.enter="signup"
+                          v-on:keyup.enter="signUp"
                         ></v-text-field>
                       </v-flex>
 
@@ -155,7 +155,7 @@
                           @focus="emailErrors = []"
                           @blur="validateEmail"
                           :error-messages="emailErrors"
-                          v-on:keyup.enter="signup"
+                          v-on:keyup.enter="signUp"
                         ></v-text-field>
                       </v-flex>
 
@@ -169,7 +169,7 @@
                           @focus="passwordErrors = []"
                           @blur="validatePassword"
                           :error-messages="passwordErrors"
-                          v-on:keyup.enter="signup"
+                          v-on:keyup.enter="signUp"
                         ></v-text-field>
                       </v-flex>
 
@@ -183,7 +183,7 @@
                           @focus="passwordErrors = []"
                           @blur="validatePassword"
                           :error-messages="passwordErrors"
-                          v-on:keyup.enter="signup"
+                          v-on:keyup.enter="signUp"
                         ></v-text-field>
                       </v-flex>
 
@@ -196,7 +196,7 @@
 
                 <v-card-actions>
                   <v-spacer align="right">
-                    <v-btn class="normal-button" color="success darken-1" flat @click="signup">Accept</v-btn>
+                    <v-btn class="normal-button" color="success darken-1" flat @click="signUp">Accept</v-btn>
                     <v-btn class="normal-button" color="error darken-1" flat @click="closeSignUpModal">Close</v-btn>
                   </v-spacer>
                 </v-card-actions>
@@ -249,9 +249,7 @@
         hasValidPassword: false,
         passwordErrors: [],
         hasValidSignUpInput: false,
-        // TODO: swap this with the one from the story guide
-        // taken from https://vuejs.org/v2/cookbook/form-validation.html
-        emailExpression: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        emailExpression: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
       };
     },
 
@@ -279,15 +277,14 @@
             localStorage.setItem("authToken", loginInfo.token);
             const userInfo = await getUser(loginInfo.userId);
             UserStorage.methods.setUserData(userInfo, loginInfo.userId);
-            this.$router.push('/profile');
+            this.$router.push(`/profile/${parseInt(loginInfo.userId)}`);
           } catch (error) {
-            console.log(error);
             this.loginPasswordErrors.push("Incorrect Username or password, please try again");
           }
         }
       },
 
-      async signup() {
+      async signUp() {
         this.validateAllSignUpFields();
         if (this.hasValidSignUpInput) {
           try {
@@ -299,9 +296,8 @@
             const userInfo = userResponse.body;
             localStorage.setItem("userId", userInfo.userId);
             localStorage.setItem("authToken", userInfo.token);
-            this.$router.push('/profile');
+            this.$router.push(`/profile/${userInfo.userId}`);
           } catch (error) {
-            console.log(error);
             this.usernameErrors.push("Username or Email is already in use, please choose another");
             this.emailErrors.push("Username or Email is already in use, please choose another");
           }

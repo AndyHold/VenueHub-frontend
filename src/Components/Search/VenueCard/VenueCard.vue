@@ -21,7 +21,7 @@
                 ></v-img>
                 <v-img
                   v-else
-                  src="src/Resources/Images/placeholder-image.jpg"
+                  src="/src/Resources/Images/placeholder-image.jpg"
                   aspect-ratio="1"
                   class="primary-image"
                 ></v-img>
@@ -301,19 +301,6 @@
         this.$router.push(`/venues/${this.venue.venueId}`)
       },
 
-      getAdminPhoto: async function() {
-        let response = await getUserImage(this.fullVenue.admin.userId);
-        if (response.status === 200) {
-          this.adminPhoto = endpoint(`/users/${this.fullVenue.admin.userId}/photo`);
-        } else {
-          this.adminPhoto = false;
-        }
-      },
-
-      getAddress: function () {
-        return this.fullVenue.address.split(',');
-      },
-
       getVenuePhotoEndpoint: function(photo) {
         return endpoint(`/venues/${this.venue.venueId}/photos/${photo.photoFilename}`);
       }
@@ -342,6 +329,10 @@
 
   .venue-card {
     margin: 20px 20px 0 20px;
+  }
+
+  .venue-card :hover {
+    cursor: pointer;
   }
 
   .primary-image {

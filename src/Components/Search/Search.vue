@@ -5,7 +5,7 @@
       <v-toolbar-title class="page-title">Search Venues</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="logout-button">
-        <v-btn v-if="isLoggedOn()" color="blue-grey lighten-4" @click="logout" round fab><v-icon color="primary">logout</v-icon></v-btn>
+        <v-btn v-if="isLoggedIn" color="blue-grey lighten-4" @click="logout" round fab><v-icon color="primary">logout</v-icon></v-btn>
       </v-toolbar-items>
     </v-toolbar>
 
@@ -187,7 +187,8 @@
           v-for="venue in venues"
           v-bind:key="venue.venueId"
           :venue="venue"
-          :categories="categories">
+          :categories="categories"
+        >
         </venue-card>
         <!-- End of Venue Cards -->
 
@@ -251,7 +252,9 @@
         categories: [],
         cities: [],
 
-        numberOfResults: 0
+        numberOfResults: 0,
+
+        isLoggedIn: false
       }
     },
 
@@ -462,6 +465,7 @@
     },
 
     mounted: async function () {
+      this.isLoggedIn = localStorage.getItem("userId") !== null;
       this.categories = await getCategories();
       await this.getVenuesWithQueries();
       this.getLocation();

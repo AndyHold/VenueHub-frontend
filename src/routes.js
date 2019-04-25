@@ -6,7 +6,7 @@ import Search from "./Components/Search/Search";
 import Profile from "./Components/Profile/Profile";
 import Venue from "./Components/Venue/Venue";
 
-import {isLoggedIn, isLoggedInOrOut, isNotLoggedIn} from "./Utilities/authenticator";
+import {isLoggedInOrOut, isNotLoggedIn} from "./Utilities/authenticator";
 
 const routes = [
   {
@@ -20,14 +20,18 @@ const routes = [
     beforeEnter: isLoggedInOrOut
   },
   {
-    path: "/profile",
+    path: "/profile/:userId",
     component: Profile,
-    beforeEnter: isLoggedIn
+    beforeEnter: isLoggedInOrOut
   },
   {
     path: "/venues/:venueId",
     component: Venue,
     beforeEnter: isLoggedInOrOut
+  },
+  {
+    path: '*',
+    redirect: '/'
   }
 ];
 

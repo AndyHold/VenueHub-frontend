@@ -59,13 +59,6 @@
           loggedOut: true
         },
         {
-          title: 'My Venues',
-          url: '/venues',
-          icon: 'local_bar',
-          loggedIn: true,
-          loggedOut: false
-        },
-        {
           title: 'Search Venues',
           url: '/search',
           icon: 'search',
@@ -75,9 +68,11 @@
       ],
       title: false
     }),
+
     methods: {
       goToURL: function (URL) {
-        this.$router.push(URL)
+        this.$router.push(URL);
+        this.$router.go(0);
       }
     }
   }

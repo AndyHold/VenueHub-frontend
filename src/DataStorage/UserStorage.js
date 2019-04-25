@@ -15,7 +15,7 @@ const UserStorage = {
       UserStorage.data.familyName = user.familyName;
     },
     isLoggedIn() {
-      return UserStorage.data.userId;
+      return UserStorage.data.userId === null;
     },
     logout() {
       UserStorage.data.userId = null;

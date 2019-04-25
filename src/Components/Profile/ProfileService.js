@@ -11,9 +11,8 @@ export async function putProfilePhoto (fileContents, fileType) {
     .send(fileContents);
 }
 
-export async function getUserImage () {
+export async function getUserImage (userId) {
   let authToken = localStorage.getItem("authToken");
-  let userId = localStorage.getItem("userId");
 
   return await superAgent.get(endpoint(`/users/${userId}/photo`))
     .set("x-authorization", authToken);
@@ -52,4 +51,19 @@ export async function getUserReviews(userId) {
 
   return superAgent.get(endpoint(`/users/${userId}/reviews`))
     .set("x-authorization", authToken);
+}
+
+export async function getUserDetails(userId) {
+  let authToken = localStorage.getItem("authToken");
+
+  return superAgent.get(endpoint(`/users/${userId}`))
+    .set("x-authorization", authToken);
+}
+
+export async function sendNewVenue(venue) {
+  let authToken = localStorage.getItem("authToken");
+
+  return await superAgent.post(endpoint('/venues'))
+    .set("x-authorization", authToken)
+    .send(venue);
 }
