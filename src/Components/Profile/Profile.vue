@@ -64,7 +64,7 @@
                         Upload a Profile Picture
                       </v-card-title>
 
-                      <v-card-media>
+                      <v-responsive>
                         <v-spacer align="center">
                           <div v-if="imageUrl" class="image-preview">
                             <h2>Preview</h2>
@@ -105,11 +105,12 @@
                           </div>
                         </v-spacer>
                         <!-- code to upload image here -->
-                      </v-card-media>
+                      </v-responsive>
 
                       <v-card-actions>
                         <v-spacer align="left">
                           <v-btn
+                            v-if="userPhoto"
                             flat
                             color="error darken-1"
                             v-on:click="deletePhoto"
@@ -307,7 +308,15 @@
             </v-card-title>
 
             <v-card-text>
-              <!-- Code for venues here -->
+
+              <!-- Venue Cards -->
+              <venue-card
+                v-for="venue in venues"
+                v-bind:key="venue.venueId"
+                :venue="venue"
+                :categories="categories">
+              </venue-card>
+
             </v-card-text>
           </v-card>
         </v-flex>
@@ -332,14 +341,22 @@
             </v-card-title>
 
             <v-card-text>
-              <!-- Code for venues here -->
+              <review-card
+                v-for="review in reviews"
+                v-bind:key="review.venue.venueId"
+                :review="review"
+              ></review-card>
             </v-card-text>
           </v-card>
         </v-flex>
-        <!-- End of Photo and Name Card -->
 
       </v-layout>
 
+      <v-card>
+        <pre>
+          {{ reviews }}
+        </pre>
+      </v-card>
     </div>
 </template>
 
@@ -347,13 +364,25 @@
   import UserStorage from "../../DataStorage/UserStorage";
   import {sendLoginRequest, sendLogoutRequest} from "../../Utilities/loginPortal";
   import {endpoint} from "../../Utilities/endpoint";
-  import {deleteProfilePhoto, getUserImage, putProfilePhoto, sendEditUserRequest} from "./ProfileService";
+  import {
+    deleteProfilePhoto,
+    getUserImage, getUserReviews,
+    putProfilePhoto, requestCategories,
+    requestUserVenues,
+    sendEditUserRequest
+  } from "./ProfileService";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
+  import VenueCard from "../Search/VenueCard/VenueCard";
+  import ReviewCard from "./ReviewCard/ReviewCard";
 
   export default {
     name: "Profile",
 
-    components: {NavigationMenu},
+    components: {
+      NavigationMenu,
+      VenueCard,
+      ReviewCard
+    },
 
     data () {
       return {
@@ -387,7 +416,10 @@
         familyName: null,
         hasValidFamilyName: false,
         familyNameErrors: [],
-        hasValidEditData: false
+        hasValidEditData: false,
+        venues: [],
+        categories: [],
+        reviews: []
       }
     },
 
@@ -500,30 +532,33 @@
           fileReader.readAsArrayBuffer(this.imageFile);
           fileReader.addEventListener("load", async () => {
             const fileContents = fileReader.result;
-            console.log(fileContents);
-            let response = await putProfilePhoto(fileContents, fileType);
-            if (response.status === 200) {
-              // TODO: implement an alert message here.
-              // Profile Picture Updated Successfully
-              this.$router.go();
-            } else if (response.status === 201) {
-              // TODO: implement an alert message here.
-              // Profile Picture Added Successfully
-              this.$router.go();
-            } else if (response.status === 400) {
-              // TODO: implement an alert message here.
-              // Bad image
-            } else if (response.status === 401) {
-              // TODO: implement an alert message here.
-              // Forbidden, you do not have permission to perform this action.
-            } else if (response.status === 403) {
-              // TODO: implement an alert message here.
-              // Unauthorized, please log in
-              this.$router.push('/');
-            } else if (response.status === 404) {
-              // TODO: implement an alert message here.
-              // User not found
-              this.$router.push('/');
+            try {
+              let response = await putProfilePhoto(fileContents, fileType);
+              if (response.status === 200) {
+                // TODO: implement an alert message here.
+                // Profile Picture Updated Successfully
+                this.$router.go(0);
+              } else if (response.status === 201) {
+                // TODO: implement an alert message here.
+                // Profile Picture Added Successfully
+                this.$router.go(0);
+              }
+            } catch (error) {
+              if (error.status === 400) {
+                // TODO: implement an alert message here.
+                // Bad image
+              } else if (error.status === 401) {
+                // TODO: implement an alert message here.
+                // Forbidden, you do not have permission to perform this action.
+              } else if (error.status === 403) {
+                // TODO: implement an alert message here.
+                // Unauthorized, please log in
+                this.$router.push('/');
+              } else if (error.status === 404) {
+                // TODO: implement an alert message here.
+                // User not found
+                this.$router.push('/');
+              }
             }
           });
         }
@@ -663,6 +698,36 @@
             alert("Server error, please try again");
           }
         }
+      },
+
+      getUser: async function () {
+
+      },
+
+      getUserReviews: async function () {
+        try {
+          let response = await getUserReviews(this.user.userId);
+          this.reviews = this.getReviewVenuePhotos(response.body);
+        } catch (error) {
+          if (error.status === 401) {
+            // TODO implement custom pop up here
+            // Unauthorized, please log in
+          } else if (error.status === 404) {
+            // TODO implement custom pop up here
+            // User Not Found
+          }
+        }
+      },
+
+      getReviewVenuePhotos: function (reviews) {
+        for (let i = 0; i < reviews.length; i++) {
+          let venueId = reviews[i].venue.venueId;
+          let primaryPhoto = reviews[i].venue.primaryPhoto;
+          if (primaryPhoto) {
+            reviews[i].venue.primaryPhoto = endpoint(`/venues/${venueId}/photos/${primaryPhoto}`);
+          }
+        }
+        return reviews;
       }
     },
 
@@ -675,12 +740,20 @@
       this.givenName = this.user.givenName;
       this.familyName = this.user.familyName;
       this.getUserPhoto();
+      this.venues = await requestUserVenues(this.user.userId);
+      this.categories = await requestCategories();
+      this.getUserReviews();
     }
   }
 </script>
 
 <style lang="scss" scoped>
+
   @import "../../Resources/StyleSheets/variables";
+
+  .v-card {
+    background-color: $lighter-secondary;
+  }
 
   #profile {
     background-image: url("../../Resources/Images/background.jpg");

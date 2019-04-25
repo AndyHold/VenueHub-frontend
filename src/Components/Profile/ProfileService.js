@@ -35,3 +35,21 @@ export async function sendEditUserRequest (user) {
     .set("x-authorization", authToken)
     .send(user);
 }
+
+export async function requestUserVenues(userId) {
+  let response = await superAgent.get(endpoint(`/venues?adminId=${userId}`));
+  return response.body;
+}
+
+export async function requestCategories() {
+  let response = await superAgent.get(endpoint('/categories'));
+
+  return response.body;
+}
+
+export async function getUserReviews(userId) {
+  let authToken = localStorage.getItem("authToken");
+
+  return superAgent.get(endpoint(`/users/${userId}/reviews`))
+    .set("x-authorization", authToken);
+}

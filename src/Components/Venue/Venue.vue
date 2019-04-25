@@ -1,5 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <div id="venue">
+  <div v-if="venue"
+    id="venue">
 
     <!-- Title Bar -->
     <v-toolbar fixed color="primary" class="page-header" z-index="9999">
@@ -380,6 +381,7 @@
                       <!-- Long Description -->
                       <v-flex xs12>
                         <v-textarea
+                          auto-grow
                           label="Long Description"
                           hint="Long description displayed after the short description when requested"
                           :value="editedVenue.longDescription"
@@ -460,12 +462,12 @@
           <v-card-title class="headline primary title-text">
             Photos
           </v-card-title>
-          <v-card-media>
+          <v-responsive>
             <photos-card
             :photos="venue.photos"
             :venueId="venueId"
             :isAdmin="isAdmin"></photos-card>
-          </v-card-media>
+          </v-responsive>
 
           <!-- Upload Button -->
           <v-dialog
@@ -496,51 +498,84 @@
                 Upload a Venue Picture
               </v-card-title>
 
-              <v-card-media>
-                <v-spacer align="center">
-                  <div v-if="imageUrl" class="image-preview">
-                    <h2>Preview</h2>
-                    <v-img
-                      :src="imageUrl"
-                      width="35%"
-                      class="profile-photo"
-                      aspect-ratio="1"
-                    ></v-img>
-                  </div>
-                  <div class="uploader"
-                       @dragenter="onDragEnter"
-                       @dragleave="onDragLeave"
-                       @dragover.prevent
-                       @drop="onDrop"
-                       :class="{ dragging: isDragging }"
-                  >
-                    <v-icon v-if="isDragging" color="primary" x-large>cloud_upload</v-icon>
-                    <v-icon v-else color="white" x-large>cloud_upload</v-icon>
-                    <p>Drag your image here</p>
-                    <div>OR</div>
-                    <div class="file-input">
-                      <v-text-field
-                        prepend-icon="attach_file"
-                        v-model="imageName"
-                        :value="imageName"
-                        label="Select Image"
-                        v-on:click="pickFile"
-                        clearable></v-text-field>
-                      <input
-                        type="file"
-                        style="display: none"
-                        ref=image
-                        accept="image/png,image/jpeg"
-                        @change="onInputChange"
-                      >
+              <v-responsive>
+                <v-layout row class="info-section">
+                  <v-flex xs8>
+                    <v-spacer align="center">
+                    <div v-if="imageUrl" class="image-preview">
+                      <h2>Preview</h2>
+                      <v-img
+                        :src="imageUrl"
+                        width="35%"
+                        aspect-ratio="1"
+                      ></v-img>
                     </div>
-                  </div>
-                </v-spacer>
-              </v-card-media>
+                    <div class="uploader"
+                         @dragenter="onDragEnter"
+                         @dragleave="onDragLeave"
+                         @dragover.prevent
+                         @drop="onDrop"
+                         :class="{ dragging: isDragging }"
+                    >
+                      <v-icon v-if="isDragging" color="primary" x-large>cloud_upload</v-icon>
+                      <v-icon v-else color="white" x-large>cloud_upload</v-icon>
+                      <p>Drag your image here</p>
+                      <div>OR</div>
+                      <div class="file-input">
+                        <v-text-field
+                          prepend-icon="attach_file"
+                          v-model="imageName"
+                          :value="imageName"
+                          label="Select Image"
+                          v-on:click="pickFile"
+                          clearable></v-text-field>
+                        <input
+                          type="file"
+                          style="display: none"
+                          ref=image
+                          accept="image/png,image/jpeg"
+                          @change="onInputChange"
+                        >
+                      </div>
+                    </div>
+                  </v-spacer>
+                  </v-flex>
+                  <v-flex xs4 class="description-column">
+                    <v-spacer align="center">
+                      <h4>
+                        Photo Description
+                      </h4>
+                    </v-spacer>
+                    <v-textarea
+                    auto-grow
+                    clearable
+                    hint="General description of the photo"
+                    label="Photo Description"
+                    placeholder="The view from outside the front door..."
+                    :value="venuePhoto.description"
+                    v-model="venuePhoto.description"
+                    @focus="venuePhotoDescriptionErrors = []"
+                    @blur="validateVenuePhotoDescription"
+                    :error-messages="venuePhotoDescriptionErrors"
+                    v-on:keyup="validateVenuePhotoDescription"
+                    >
+
+                    </v-textarea>
+                    <v-flex v-if="venue.photos.length > 0">
+                      <v-switch
+                        v-model="venuePhoto.makePrimary"
+                        :label="`Make primary venue photo: ${venuePhoto.makePrimary.toString()}`"
+                      ></v-switch>
+
+                    </v-flex>
+                  </v-flex>
+                </v-layout>
+              </v-responsive>
 
               <v-card-actions>
                 <v-spacer align="right">
                   <v-btn
+                    :disabled="!imageName"
                     flat
                     color="success darken-1"
                     v-on:click="uploadPhoto"
@@ -567,16 +602,157 @@
           <v-card-title class="headline primary title-text">
             Reviews
           </v-card-title>
-          <v-card-media>
+          <v-responsive>
+            <v-spacer align="right">
+
+              <!-- Add Review Dialog -->
+              <v-dialog
+                v-if="canReview"
+                v-model="addReviewDialog"
+                persistent
+                width="80%"
+              >
+
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    flat
+                    color="primary darken-1"
+                    v-on="on"
+                  >Review This Venue</v-btn>
+                </template>
+
+                <v-card class="card-background">
+                  <v-card-title
+                    class="headline primary title-text"
+                    color="primary darken-1"
+                  >
+                    Add a review
+                  </v-card-title>
+
+                  <v-responsive>
+                    <v-layout row style="margin: 0 30px">
+                      <v-flex xs6>
+
+                        <!-- Title Row -->
+                        <v-spacer align="center">
+                          <h4 class="font-weight-regular">
+                            Review Body
+                          </h4>
+                        </v-spacer>
+
+                        <!-- Body -->
+                        <v-textarea
+                          auto-grow
+                          clearable
+                          hint="Enter any comments you have here."
+                          label="Review Body"
+                          placeholder="I liked this event because..."
+                          :value="review.reviewBody"
+                          v-model="review.reviewBody"
+                          @focus="reviewErrors = []"
+                          @blur="validateReviewBody"
+                          :error-messages="reviewErrors"
+                          v-on:keyup="validateReviewBody"
+                        >
+
+                        </v-textarea>
+
+                      </v-flex>
+                      <v-flex xs6>
+
+                        <!-- Title Row-->
+                        <v-spacer align="center">
+                          <h4 class="font-weight-regular">
+                            Ratings
+                          </h4>
+                        </v-spacer>
+
+                        <!-- Star Rating Row -->
+                        <v-flex>
+                          <v-layout row>
+                            <v-flex xs5 class="left-column">
+                              <h3 class="font-weight-regular">
+                                Star Rating
+                              </h3>
+                            </v-flex>
+                            <v-flex xs7 class="right-column">
+                              <v-tooltip bottom>
+
+                                <template v-slot:activator="{ on }">
+                                  <div v-on="on">
+                                    <v-rating
+                                      v-model="review.starRating"
+                                      length="5"
+                                    ></v-rating>
+                                  </div>
+                                </template>
+
+                                <span>Please choose an overall rating for the venue between 1 - 5</span>
+                              </v-tooltip>
+                            </v-flex>
+                          </v-layout>
+                        </v-flex>
+
+                        <!-- Cost Rating Row -->
+                        <v-flex>
+                          <v-layout row>
+                            <v-flex xs5 class="left-column">
+                              <h3 class="font-weight-regular">
+                                Cost Rating
+                              </h3>
+                            </v-flex>
+                            <v-flex xs7 class="right-column">
+                              <v-tooltip bottom>
+
+                                <template v-slot:activator="{ on }">
+                                  <div v-on="on">
+                                    <v-rating
+                                      v-model="review.costRating"
+                                      length="4"
+                                      clearable
+                                    ></v-rating>
+                                  </div>
+                                </template>
+
+                                <span>Please enter a cost rating between 0 - 4 where 0 is free and 4 is very expensive</span>
+                              </v-tooltip>
+                            </v-flex>
+                          </v-layout>
+                        </v-flex>
+
+                      </v-flex>
+                    </v-layout>
+                  </v-responsive>
+
+                  <v-card-actions>
+                    <v-spacer align="right">
+                      <v-btn
+                        flat
+                        color="success darken-1"
+                        v-on:click="addReview"
+                      >Post</v-btn>
+                      <v-btn
+                        flat
+                        color="error darken-1"
+                        v-on:click="closeReviewDialog"
+                      >Close</v-btn>
+                    </v-spacer>
+                  </v-card-actions>
+                </v-card>
+
+              </v-dialog>
+
+            </v-spacer>
             <v-container fluid>
               <v-layout row wrap>
                 <review-card
                   v-for="review in reviews"
+                  v-bind:key="review.reviewAuthor.userId"
                   :review="review"
                 ></review-card>
               </v-layout>
             </v-container>
-          </v-card-media>
+          </v-responsive>
         </v-card>
       </v-flex>
     </v-layout>
@@ -598,7 +774,7 @@
   import PhotosCard from "./PhotosCard/PhotosCard";
   import {sendLogoutRequest} from "../../Utilities/loginPortal";
   import {
-    checkUserPhoto,
+    checkUserPhoto, postReview,
     putVenuePhoto,
     requestVenueRatings,
     requestVenueReviews,
@@ -627,7 +803,7 @@
         mainPhoto: false,
         isDragging: false,
         dragCount: 0,
-        imageName: '',
+        imageName: null,
         imageFile: '',
         imageUrl: '',
         uploadPhotoDialog: false,
@@ -657,9 +833,39 @@
         venuePositionErrors: [],
         validVenuePosition: false,
         hasValidInput: false,
-        reviews: []
+        reviews: [],
+        canReview: true,
+        addReviewDialog: false,
+        review: {
+          starRating: 0,
+          costRating: -1,
+          reviewBody: ""
+        },
+        reviewErrors: [],
+        validReview: false,
+        starRatingErrors: [],
+        validStarRating: false,
+        costRatingErrors: [],
+        validCostRating: false,
+        hasValidReviewInfo: false,
+        venuePhoto: {
+          makePrimary: false,
+          description: "",
+          photo: null
+        },
+        validVenuePhotoDescription: false,
+        venuePhotoDescriptionErrors: [],
+        validVenuePhoto: false,
+        venuePhotoErrors: []
       }
   },
+
+    watch: {
+      "imageName": {
+        handler: "onImageNameChanged",
+        immediate: true
+      }
+    },
 
     methods: {
 
@@ -753,7 +959,7 @@
             this.imageFile = files[0];
           })
         } else {
-          this.imageName = '';
+          this.imageName = null;
           this.imageFile = '';
           this.imageUrl = '';
         }
@@ -797,44 +1003,49 @@
         }
       },
 
-      uploadPhoto: function () {
-        //TODO: change this to use form data
-        const fileType = this.imageFile.type;
+      uploadPhoto: async function () {
         const fileSize = this.imageFile.size;
         if (fileSize > 20971520) {
           // TODO: implement an alert message here.
           // Image is too large, please resize or chose another image
         } else {
-          let fileReader = new FileReader();
-          fileReader.readAsArrayBuffer(this.imageFile);
-          fileReader.addEventListener("load", async () => {
-            const fileContents = fileReader.result;
-            console.log(fileContents);
-            let response = await putVenuePhoto(fileContents, fileType);
+          let form = new FormData();
+          await form.append("photo",this.imageFile , this.imageName);
+          if (this.venuePhoto.description) {
+            await form.append("description", this.venuePhoto.description);
+          }
+          await form.append("makePrimary", this.venuePhoto.makePrimary.toString());
+          console.log(form.get("makePrimary"));
+          try {
+            let response = await putVenuePhoto(form, this.venueId);
             if (response.status === 200) {
               // TODO: implement an alert message here.
               // Profile Picture Updated Successfully
-              this.$router.go();
+              this.$router.go(0);
             } else if (response.status === 201) {
               // TODO: implement an alert message here.
               // Profile Picture Added Successfully
-              this.$router.go();
-            } else if (response.status === 400) {
+              this.$router.go(0);
+            }
+          } catch (error) {
+            if (error.status === 400) {
               // TODO: implement an alert message here.
               // Bad image
-            } else if (response.status === 401) {
+              console.log(error);
+            } else if (error.status === 401) {
               // TODO: implement an alert message here.
               // Forbidden, you do not have permission to perform this action.
-            } else if (response.status === 403) {
+              console.log(error);
+            } else if (error.status === 403) {
               // TODO: implement an alert message here.
               // Unauthorized, please log in
               this.$router.push('/');
-            } else if (response.status === 404) {
+            } else if (error.status === 404) {
               // TODO: implement an alert message here.
               // User not found
               this.$router.push('/');
             }
-          });
+          }
         }
       },
 
@@ -1024,25 +1235,124 @@
           reviews[i]["authorPhoto"] = await this.checkAuthorPhoto(userId);
         }
         return reviews;
-      }
+      },
+
+      checkCanReview: function () {
+        for (let i = 0; i < this.reviews.length; i++) {
+          if (localStorage.getItem("userId") === undefined ||
+            parseInt(this.reviews[i].reviewAuthor.userId) === parseInt(localStorage.getItem("userId")) || this.isAdmin) {
+            this.canReview = false;
+          }
+        }
+      },
+
+      addReview: async function () {
+        this.validateAllReview();
+        if (this.hasValidReviewInfo) {
+          try {
+            await postReview(this.review, this.venueId);
+            // TODO: Implement pop up here
+            // Successfully added review
+            this.$router.go(0);
+          } catch (error) {
+            if (error.status === 400) {
+              // TODO: Implement pop up here
+              // Bad request
+            } else if (error.status === 401) {
+              // TODO: Implement pop up here
+              // Unauthorized
+            } else if (error.status === 403) {
+              // TODO: Implement pop up here
+              // Forbidden
+            } else if (error.status === 404) {
+              // TODO: Implement pop up here
+              // Not Found
+            }
+          }
+        }
+      },
+
+      closeReviewDialog: function() {
+        this.addReviewDialog = false;
+        this.review = {
+          starRating: -1,
+          costRating: -1,
+          reviewBody: ""
+        }
+      },
+
+      validateReviewBody: function() {
+        this.reviewErrors = [];
+        if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\\\n\t]+$/i.test(this.review.reviewBody)) {
+          this.reviewErrors.push("Review contains invalid characters, only letters, numbers and the following are allowed:  ,+=*/\\\"':;.{}()%$&#@!?");
+          this.validReview = false;
+        } else if (this.review.reviewBody.length > 1024) {
+          this.reviewErrors.push("Review is too long. Only 1024 characters allowed, you have " + this.review.reviewBody.length);
+          this.validReview = false;
+        } else {
+          this.validReview = true;
+        }
+      },
+
+      validateStarRating: function() {
+        this.starRatingErrors = [];
+        if (this.review.starRating < 1 || this.review.starRating > 5) {
+          this.starRatingErrors.push("Please enter a star rating between 1 - 5");
+          this.validStarRating = false;
+        } else {
+          this.validStarRating = true;
+        }
+      },
+
+      validateCostRating: function() {
+        this.costRatingErrors = [];
+        if (this.review.costRating < 0 || this.review.costRating > 4) {
+          this.costRatingErrors.push("Please enter a cost rating between 0 - 4");
+          this.validCostRating = false;
+        } else {
+          this.validCostRating = true;
+        }
+      },
+
+      validateAllReview: function() {
+        this.validateStarRating();
+        this.validateCostRating();
+        this.validateReviewBody();
+        this.hasValidReviewInfo = (this.validReview && this.validStarRating && this.validCostRating);
+      },
+
+      validateVenuePhotoDescription: function () {
+        this.venuePhotoDescriptionErrors = [];
+        if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\\\n\t]*$/i.test(this.venuePhoto.description)) {
+          this.venuePhotoDescriptionErrors.push("Description contains invalid characters, only letters, numbers and the following are allowed:  ,+=*/\\\"':;.{}()%$&#@!?");
+          this.validVenuePhotoDescription = false;
+        } else if (this.venuePhoto.description.length > 128) {
+          this.venuePhotoDescriptionErrors.push("Description is too long. Only 128 characters allowed, you have " + this.venuePhoto.description.length);
+          this.validVenuePhotoDescription = false;
+        } else {
+          this.validVenuePhotoDescription = true;
+        }
+
+        }
     },
 
     mounted: async function () {
-      this.venueId = this.$route.params.venueId;
+      this.venueId = parseInt(this.$route.params.venueId);
       try {
         let response = await requestVenueDetails(this.venueId);
         this.venue = response.body;
+        this.isAdmin = parseInt(this.venue["admin"].userId) === parseInt(UserStorage.data.userId);
         this.setEditedVenue();
       } catch (error) {
         console.log(error);
         // TODO: add custom alert here
         // Venue not found
-        // this.$router; // go back ???
+        // this.$router.back(); // go back ???
       }
       try {
         let response = await requestVenueRatings(this.venue);
         for (let i = 0; i < response.body.length; i++) {
-          if (this.venueId == response.body[i].venueId) {
+          if (parseInt(this.venueId) === parseInt(response.body[i].venueId)) {
             this.venue.meanStarRating = response.body[i].meanStarRating;
             this.venue.modeCostRating = response.body[i].modeCostRating;
           }
@@ -1056,12 +1366,12 @@
       try {
         let response = await requestVenueReviews(this.venueId);
         this.reviews = await this.getReviewAuthorPhotos(response.body);
+        this.checkCanReview();
       } catch (error) {
         console.log(error);
         // TODO: add custom alert here
         // Could not load reviews
       }
-      this.isAdmin = this.venue["admin"].userId == UserStorage.data.userId;
       this.getAdminPhoto();
       let photo = await this.getMainPhoto();
       if (photo) {
@@ -1069,12 +1379,17 @@
       }
       this.categories = await getCategories();
     }
+
   }
 </script>
 
 <style lang="scss" scoped>
 
   @import "../../Resources/StyleSheets/variables";
+
+  .v-card {
+    background-color: $lighter-secondary;
+  }
 
   #venue {
     background-image: url("../../Resources/Images/background.jpg");
@@ -1109,7 +1424,6 @@
   }
 
   .venue-card {
-    background-color: $lighter-secondary;
     padding: 20px;
   }
 
@@ -1168,7 +1482,7 @@
   }
 
   .info-section {
-    margin:0 20px 0 20px;
+    margin:0 20px;
   }
 
   .left-column {
@@ -1213,6 +1527,10 @@
     right: 30px;
     bottom: 30px;
     z-index: 1;
+  }
+
+  .description-column {
+    padding: 20px;
   }
 
 </style>

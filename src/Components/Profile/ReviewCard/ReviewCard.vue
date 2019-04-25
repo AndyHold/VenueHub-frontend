@@ -7,13 +7,13 @@
       <v-card-text>
         <v-layout row>
 
-          <!-- Author Panel -->
-          <v-flex xs4>
+          <!-- Venue Image Panel -->
+          <v-flex xs4 class="details-section">
 
             <!-- Title Row -->
             <v-flex xs12>
               <h3 class="font-weight-regular" align="center">
-                Author
+                {{ review.venue.venueName }}
               </h3>
             </v-flex>
 
@@ -22,10 +22,10 @@
               <v-flex xs12>
                 <v-spacer align="center">
                   <v-img
-                    v-if="review.authorPhoto"
-                    :src="review.authorPhoto"
+                    class="venue-photo"
+                    v-if="review.venue.primaryPhoto"
+                    :src="review.venue.primaryPhoto"
                     aspect-ratio="1"
-                    class="profile-photo"
                     height="225"
                     width="225"
                   >
@@ -34,7 +34,6 @@
                     v-else
                     src="/src/Resources/Images/placeholder-image.jpg"
                     aspect-ratio="1"
-                    class="profile-photo"
                     height="225"
                     width="225"
                   ></v-img>
@@ -42,26 +41,85 @@
               </v-flex>
             </v-layout>
 
-            <!-- Username Row -->
-            <v-layout row>
-              <v-flex xs12>
-                <h4 class="font-weight-regular" align="center">
-                  {{ review.reviewAuthor.username }}
-                </h4>
-              </v-flex>
-            </v-layout>
-
           </v-flex>
 
-          <!-- ReviewCard Body Panel -->
-          <v-flex xs8>
+          <!-- Venue Details Panel -->
+          <v-flex xs4 row class="details-section">
+            <v-divider vertical></v-divider>
+            <v-flex class="details-section">
+              <h3>
+                Venue Details
+              </h3>
+
+              <!-- City Row -->
+              <v-layout row  class="details-section">
+                <v-flex xs4>
+                  <h4 class="font-weight-regular">
+                    City
+                  </h4>
+                </v-flex>
+                <v-flex xs8>
+                  <h4 class="font-weight-regular">
+                    {{ review.venue.city }}
+                  </h4>
+                </v-flex>
+              </v-layout>
+
+              <!-- Category Row -->
+              <v-layout row class="details-section">
+                <v-flex xs4>
+                  <h4 class="font-weight-regular">
+                    Category
+                  </h4>
+                </v-flex>
+                <v-flex xs8>
+                  <h4 class="font-weight-regular">
+                    {{ review.venue.categoryName }}
+                  </h4>
+                </v-flex>
+              </v-layout>
+
+              <!-- Description Row -->
+              <v-flex class="details-section">
+                <v-layout row>
+                  <v-flex xs4>
+                    <h4 class="font-weight-regular">
+                      Description
+                    </h4>
+                  </v-flex>
+                  <v-flex xs8>
+                    <p>
+                      {{ review.venue.shortDescription }}
+                    </p>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <!-- Visit Venue Button Row -->
+              <v-flex class="details-section">
+              <v-layout row>
+                <v-spacer align="center">
+                  <v-btn
+                    flat
+                    color="primary darken-1"
+                    v-on:click="goToVenue"
+                  >See More</v-btn>
+                </v-spacer>
+              </v-layout>
+            </v-flex>
+            </v-flex>
+            <v-divider vertical></v-divider>
+          </v-flex>
+
+          <!-- Review Details Panel -->
+          <v-flex xs4 class="details-section">
             <h3>
               Comments
             </h3>
             <pre class="description-text photo-description-column">{{ review.reviewBody }}</pre>
 
             <!-- Date Row -->
-            <v-layout row>
+            <v-layout row class="details-section">
               <v-flex xs4>
                 <h4 class="font-weight-regular">
                   Date Reviewed
@@ -75,7 +133,7 @@
             </v-layout>
 
             <!-- Time Row -->
-            <v-layout row>
+            <v-layout row class="details-section">
               <v-flex xs4>
                 <h4 class="font-weight-regular">
                   Time Reviewed
@@ -89,7 +147,7 @@
             </v-layout>
 
             <!-- Star Rating Row -->
-            <v-flex>
+            <v-flex class="details-section">
               <v-layout row>
                 <v-flex xs4>
                   <h4 class="font-weight-regular">
@@ -116,7 +174,7 @@
             </v-flex>
 
             <!-- Cost Rating Row -->
-            <v-flex>
+            <v-flex class="details-section">
               <v-layout row>
                 <v-flex xs4>
                   <h4 class="font-weight-regular">
@@ -141,6 +199,7 @@
                 </v-flex>
               </v-layout>
             </v-flex>
+
           </v-flex>
 
         </v-layout>
@@ -150,6 +209,7 @@
 </template>
 
 <script>
+
   export default {
     name: "ReviewCard",
 
@@ -188,6 +248,34 @@
         authorPhoto: {
           type: String,
           required: true
+        },
+        venue: {
+          type: Object,
+          required: true,
+          venueId: {
+            type: Number,
+            required: true
+          },
+          venueName: {
+            type: String,
+            required: true
+          },
+          categoryName: {
+            type: String,
+            required: true
+          },
+          city: {
+            type: String,
+            required: true
+          },
+          shortDescription: {
+            type: String,
+            required: true
+          },
+          primaryPhoto: {
+            type: String,
+            required: false
+          }
         }
       }
     },
@@ -203,6 +291,10 @@
         let date = new Date(reviewDate);
         return date.toLocaleTimeString();
       },
+
+      goToVenue: function () {
+        this.$router.push(`/venues/${this.review.venue.venueId}`);
+      }
     }
   }
 </script>
@@ -219,8 +311,8 @@
     margin: 10px 20px;
   }
 
-  .profile-photo {
-    border-radius: 25em;
+  .venue-photo {
+    border-radius: 1em;
   }
 
   .photo-description-column {
@@ -230,6 +322,10 @@
   .description-text {
     font-family: 'Roboto', sans-serif;
     font-size: 14px;
+  }
+
+  .details-section {
+    padding: 0 20px;
   }
 
 </style>

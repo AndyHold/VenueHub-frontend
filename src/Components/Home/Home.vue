@@ -472,7 +472,13 @@
 </script>
 
 <style lang="scss" scoped>
+
   @import "../../Resources/StyleSheets/variables";
+
+  .v-card {
+    background-color: $lighter-secondary;
+  }
+
   #home {
     display: flex;
     align-items: center;

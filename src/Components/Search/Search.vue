@@ -185,6 +185,7 @@
         <!-- Venue Cards -->
         <venue-card
           v-for="venue in venues"
+          v-bind:key="venue.venueId"
           :venue="venue"
           :categories="categories">
         </venue-card>
@@ -478,6 +479,10 @@
 <style lang="scss" scoped>
 
   @import "../../Resources/StyleSheets/variables";
+
+  .v-card {
+    background-color: $lighter-secondary;
+  }
 
   #search {
     background-image: url("../../Resources/Images/background.jpg");

@@ -35,7 +35,7 @@
         width="90%"
       >
         <v-card class="dialog-card">
-          <v-card-media>
+          <v-responsive>
             <v-layout row list-grid>
 
               <!-- Picture -->
@@ -63,18 +63,29 @@
               <!-- Description -->
               <v-flex xs3 d-flex>
                 <v-card>
-                  <v-layout column class="photo-description-column">
+                  <v-layout fill-height column class="photo-description-column">
                     <h4 align="center">
                       Description
                     </h4>
 
                     <pre class="description-text photo-description-column">  {{ currentPhoto.photoDescription }}</pre>
+
+                    <v-layout align-end>
+                      <v-spacer align="center">
+                        <v-btn
+                          v-if="!currentPhoto.isPrimary && isAdmin"
+                          flat
+                          color="warning darken-1"
+                          v-on:click="setPhotoPrimary"
+                        >Make This The Primary Photo</v-btn>
+                      </v-spacer>
+                    </v-layout>
                   </v-layout>
                 </v-card>
               </v-flex>
 
             </v-layout>
-          </v-card-media>
+          </v-responsive>
 
           <v-card-actions>
             <v-layout row>
@@ -102,7 +113,7 @@
 
 <script>
   import {endpoint} from "../../../Utilities/endpoint";
-  import {deleteVenuePhoto} from "../VenueService";
+  import {deleteVenuePhoto, makePrimary} from "../VenueService";
 
   export default {
 
@@ -153,6 +164,7 @@
       },
 
       deletePhoto: async function () {
+        // TODO: implement an are you sure pop up
         let response = await deleteVenuePhoto(this.venueId, this.currentPhoto.photoFilename);
         if (response.status === 200) {
           // TODO: implement an alert message here.
@@ -170,12 +182,41 @@
           // User not found
           this.$router.push('/');
         }
+      },
+
+      setPhotoPrimary: async function() {
+        try {
+          await makePrimary(this.venueId, this.currentPhoto.photoFilename);
+          // TODO: make custom pop up
+          // Successfully changed primary photo
+          this.$router.go(0);
+        } catch (error) {
+          if (error.status === 401) {
+            // TODO: make custom pop up
+            // Unauthorized
+            console.log(error);
+          } else if (error.status === 403) {
+            // TODO: make custom pop up
+            // Forbidden
+            console.log(error);
+          } else if (error.status === 404) {
+            // TODO: make custom pop up
+            // Not Found
+            console.log(error);
+          }
+        }
       }
     }
   }
 </script>
 
 <style lang="scss" scoped>
+
+  @import "../../../Resources/StyleSheets/variables";
+
+  .v-card {
+    background-color: $lighter-secondary;
+  }
 
   .photo-description-column {
     padding: 20px;

@@ -284,9 +284,11 @@
       },
 
       getCategoryName: function (categoryId) {
-        for (let index in this.categories) {
-          if (categoryId === this.categories[index].categoryId) {
-            return this.categories[index]["categoryName"];
+        for (let index = 0; index < this.categories.length; index++) {
+          if (this.categories[index].hasOwnProperty("categoryId") && categoryId === this.categories[index].categoryId) {
+            if (this.categories[index].hasOwnProperty("categoryName")) {
+              return this.categories[index]["categoryName"];
+            }
           }
         }
       },
@@ -327,6 +329,10 @@
 <style lang="scss" scoped>
 
   @import "../../../Resources/StyleSheets/variables";
+
+  .v-card {
+    background-color: $lighter-secondary;
+  }
 
   .title-text {
     color: $lighter-secondary;

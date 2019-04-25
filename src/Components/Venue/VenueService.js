@@ -2,15 +2,25 @@ import {endpoint} from "../../Utilities/endpoint";
 import superAgent from "superagent";
 
 
-export async function putVenuePhoto (filecontents, filetype) {
- //TODO: Implement me with form data
+export async function putVenuePhoto (form, venueId) {
+  let authToken = localStorage.getItem("authToken");
+
+  return superAgent.post(endpoint(`/venues/${venueId}/photos`))
+    .set("x-authorization", authToken)
+    .send(form);
 }
 
+export async function postReview (review, venueId) {
+  let authToken = localStorage.getItem("authToken");
+
+  return await superAgent.post(endpoint(`/venues/${venueId}/reviews`))
+    .set("x-authorization", authToken)
+    .send(review);
+}
 
 export async function checkUserPhoto (userId) {
   return superAgent.get(endpoint(`/users/${userId}/photo`))
 }
-
 
 export async function deleteVenuePhoto (venueId, photoFilename) {
   let authToken = localStorage.getItem("authToken");
@@ -18,7 +28,6 @@ export async function deleteVenuePhoto (venueId, photoFilename) {
   return superAgent.delete(endpoint(`/venues/${venueId}/photos/${photoFilename}`))
     .set("x-authorization", authToken);
 }
-
 
 export async function sendVenueUpdate (editedVenue, currentVenue, venueId) {
   const authToken = localStorage.getItem("authToken");
@@ -30,18 +39,23 @@ export async function sendVenueUpdate (editedVenue, currentVenue, venueId) {
     .send(venueDifferences);
 }
 
-
 export async function requestVenueRatings (venue) {
   return await superAgent.get(
     endpoint(`/venues?adminId=${venue.admin.userId}&&
     q=${venue.venueName}&&categoryId=${venue.category.categoryId}&&city=${venue.city}`));
 }
 
-
 export async function requestVenueReviews (venueId) {
   return await superAgent.get(endpoint(`/venues/${venueId}/reviews`));
 }
 
+export async function makePrimary (venueId, filename) {
+  let authToken = localStorage.getItem("authToken");
+
+
+  return await superAgent.post(endpoint(`/venues/${venueId}/photos/${filename}/setPrimary`))
+    .set("x-authorization", authToken);
+}
 
 let parseVenues = function (editedVenue, currentVenue) {
 
