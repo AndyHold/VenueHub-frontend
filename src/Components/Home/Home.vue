@@ -279,6 +279,7 @@
             UserStorage.methods.setUserData(userInfo, loginInfo.userId);
             this.$router.push(`/profile/${parseInt(loginInfo.userId)}`);
           } catch (error) {
+            console.log(error);
             this.loginPasswordErrors.push("Incorrect Username or password, please try again");
           }
         }
@@ -481,6 +482,7 @@
     justify-content: center;
     background-image: url("../../Resources/Images/background.jpg");
     background-size: cover;
+    background-attachment: fixed;
     box-shadow: inset 0 0 0 1000px rgba(0,0,0,.4);
     width: 100%;
     height: 100%;

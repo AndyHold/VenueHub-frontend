@@ -328,6 +328,7 @@
 
             <v-card-actions>
               <v-spacer align="right">
+
                 <!-- Add Venue Dialog -->
                 <v-dialog
                   v-if="owner"
@@ -344,13 +345,13 @@
                     >Add Venue</v-btn>
                   </template>
 
-                  <!-- Edit Venue Card -->
+                  <!-- Add Venue Card -->
                   <v-card>
                     <v-card-title
                       class="headline primary title-text"
                       primary-title
                     >
-                      Edit Venue Details
+                      Venue Details
                     </v-card-title>
 
                     <v-card-text>
@@ -425,10 +426,10 @@
                             </v-flex>
                           </v-layout>
 
-                          <!-- Suburb & City -->
+                          <!-- Suburb, City & Post Code -->
                           <v-layout row>
                             <!-- Venue Suburb -->
-                            <v-flex xs6>
+                            <v-flex xs5>
                               <v-text-field
                                 label="Suburb"
                                 hint="Enter the suburb your venue is located in"
@@ -443,7 +444,7 @@
                             </v-flex>
 
                             <!-- Venue City -->
-                            <v-flex xs6>
+                            <v-flex xs5>
                               <v-text-field
                                 label="Venue City*"
                                 hint="Enter the city of your venue"
@@ -456,27 +457,9 @@
                                 v-on:keyup.enter="addVenue"
                               ></v-text-field>
                             </v-flex>
-                          </v-layout>
-
-                          <!-- Region & Post Code -->
-                          <v-layout row>
-                            <!-- Venue Region -->
-                            <v-flex xs8>
-                              <v-text-field
-                                label="State/Province"
-                                hint="Enter the State or Province your venue is located in"
-                                :value="address.region"
-                                v-model="address.region"
-                                @focus="venueAddressErrors = []"
-                                @blur="validateAddress"
-                                :error-messages="venueAddressErrors"
-                                v-on:keyup="validateAddress"
-                                v-on:keyup.enter="addVenue"
-                              ></v-text-field>
-                            </v-flex>
 
                             <!-- Venue Post Code -->
-                            <v-flex xs4>
+                            <v-flex xs2>
                               <v-text-field
                                 label="Post Code"
                                 hint="Enter the post code of your venue"
@@ -491,20 +474,38 @@
                             </v-flex>
                           </v-layout>
 
-                          <!-- Country -->
-                          <v-flex xs12>
-                            <v-text-field
-                              label="Country"
-                              hint="Enter the country your venue is located in"
-                              :value="address.country"
-                              v-model="address.country"
-                              @focus="venueCountryErrors = []"
-                              @blur="validateCountryAddress"
-                              :error-messages="venueCountryErrors"
-                              v-on:keyup="validateCountryAddress"
-                              v-on:keyup.enter="addVenue"
-                            ></v-text-field>
-                          </v-flex>
+                          <!-- Region & Country -->
+                          <v-layout row>
+                            <!-- Venue Region -->
+                            <v-flex xs6>
+                              <v-text-field
+                                label="State/Province"
+                                hint="Enter the State or Province your venue is located in"
+                                :value="address.region"
+                                v-model="address.region"
+                                @focus="venueAddressErrors = []"
+                                @blur="validateAddress"
+                                :error-messages="venueAddressErrors"
+                                v-on:keyup="validateAddress"
+                                v-on:keyup.enter="addVenue"
+                              ></v-text-field>
+                            </v-flex>
+
+                            <!-- Country -->
+                            <v-flex xs6>
+                              <v-text-field
+                                label="Country"
+                                hint="Enter the country your venue is located in"
+                                :value="address.country"
+                                v-model="address.country"
+                                @focus="venueCountryErrors = []"
+                                @blur="validateCountryAddress"
+                                :error-messages="venueCountryErrors"
+                                v-on:keyup="validateCountryAddress"
+                                v-on:keyup.enter="addVenue"
+                              ></v-text-field>
+                            </v-flex>
+                          </v-layout>
 
                           <!-- Short Description -->
                           <v-flex xs12>
@@ -1243,7 +1244,7 @@
         } else if(Math.abs(this.newVenue.longitude) > 180) {
           this.venuePositionErrors.push("The longitude is invalid. It must be between -180 and 180.");
           this.validVenuePosition = false;
-        } else if (this.newVenue.latitude === null || this.newVenue.longitude === null) {
+        } else if (this.newVenue.latitude === "" || this.newVenue.longitude === "") {
           this.venuePositionErrors.push("The latitude and longitude are required.");
           this.validVenuePosition = false;
         } else {
@@ -1345,6 +1346,7 @@
   #profile {
     background-image: url("../../Resources/Images/background.jpg");
     background-size: cover;
+    background-attachment: fixed;
     width: 100%;
     height: 100%;
   }

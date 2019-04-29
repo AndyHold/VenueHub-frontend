@@ -1395,6 +1395,7 @@
   #venue {
     background-image: url("../../Resources/Images/background.jpg");
     background-size: cover;
+    background-attachment: fixed;
     width: 100%;
     height: 100%;
   }
