@@ -1,6 +1,13 @@
 import superAgent from "superagent";
 import {endpoint} from "../../Utilities/endpoint";
 
+export const rules = {
+  requiredArray: field => field.length > 0 || "This field is required",
+  requiredString: field => !!field || "This field is required",
+  stringLessThan256: field => (!!field && field.length <= 256) || `This field is too long, character limit is 256, you have ${field.length}`,
+  stringLessThan128: field => (!!field && field.length <= 128) || `This field is too long, character limit is 128, you have ${field.length}`
+}
+
 export async function putProfilePhoto (fileContents, fileType) {
   let authToken = localStorage.getItem("authToken");
   let userId = localStorage.getItem("userId");
