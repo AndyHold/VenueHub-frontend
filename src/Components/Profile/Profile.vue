@@ -148,8 +148,7 @@
   import {endpoint} from "../../Utilities/endpoint";
   import {
     getUserDetails, getUserReviews,
-    requestCategories, requestUserVenues,
-    sendNewVenue
+    requestCategories, requestUserVenues
   } from "./ProfileService";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
   import VenueCard from "../Search/VenueCard/VenueCard";
