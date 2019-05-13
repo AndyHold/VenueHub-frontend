@@ -135,138 +135,10 @@
           </h4>
           <v-spacer></v-spacer>
 
-          <!-- Edit profile button and dialog -->
-          <v-dialog
+          <edit-profile-dialog
             v-if="owner"
-            v-model="editProfileDialog"
-            persistent
-            width="40%"
-          >
-
-            <template v-slot:activator="{ on }">
-              <v-btn
-                class="edit-profile-btn"
-                fab
-                color="primary darken-1"
-                round
-                v-on="on"
-                absolute
-              >
-                <v-icon>edit</v-icon>
-              </v-btn>
-            </template>
-
-            <v-card class="card-background">
-              <v-card-title
-                class="headline primary title-text"
-                color="primary darken-1"
-              >
-                Edit your profile
-              </v-card-title>
-
-              <v-card-text>
-                <v-form
-                  ref="form"
-                  v-model="validForm"
-                >
-                <v-container grid-list-md>
-                  <v-layout wrap>
-
-                      <!-- Given Name -->
-                      <v-flex xs12 sm6 md6>
-                        <v-text-field
-                          label="First Name"
-                          hint="Enter your given name here"
-                          :value="givenName"
-                          v-model="givenName"
-                          :rules="nameRules"
-                          :counter="128"
-                          required
-                          v-on:keyup.enter="signUp"
-                        ></v-text-field>
-                      </v-flex>
-
-                      <!-- Family Name -->
-                      <v-flex xs12 sm6 md6>
-                        <v-text-field
-                          label="Last Name"
-                          hint="Enter your family name here"
-                          :value="familyName"
-                          v-model="familyName"
-                          :rules="nameRules"
-                          :counter="128"
-                          required
-                          v-on:keyup.enter="signUp"
-                        ></v-text-field>
-                      </v-flex>
-
-                      <!-- Password -->
-                      <v-flex xs12>
-                        <v-text-field
-                          label="Current Password"
-                          type="password"
-                          hit="Enter your current password here"
-                          :value="oldPassword"
-                          v-model="oldPassword"
-                          @focus="oldPasswordErrors = []"
-                          @blur="validateOldPassword"
-                          :rules="passwordRules"
-                          :error-messages="oldPasswordErrors"
-                        ></v-text-field>
-                      </v-flex>
-                      <v-flex xs12>
-                        <v-text-field
-                          label="New Password"
-                          type="password"
-                          hit="Enter your new password here"
-                          :value="newPassword"
-                          v-model="newPassword"
-                          @focus="newPasswordErrors = []"
-                          @blur="validateNewPassword"
-                          :rules="passwordRules"
-                          :error-messages="newPasswordErrors"
-                        ></v-text-field>
-                      </v-flex>
-                      <v-flex xs12>
-                        <v-text-field
-                          label="Confirm New Password"
-                          type="password"
-                          hit="Enter your new password again here"
-                          :value="confirmNewPassword"
-                          v-model="confirmNewPassword"
-                          @focus="newPasswordErrors = []"
-                          @blur="validateNewPassword"
-                          :rules="passwordRules"
-                          :error-messages="newPasswordErrors"
-                          v-on:keyup.enter="editUser"
-                        ></v-text-field>
-                      </v-flex>
-
-                      <v-flex xs12>
-                        <h4 class="information">Please change the fields you wish to edit</h4>
-                      </v-flex>
-
-                  </v-layout>
-                </v-container>
-                </v-form>
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  flat
-                  color="success darken-1"
-                  v-on:click="editUser"
-                >Accept</v-btn>
-                <v-btn
-                  flat
-                  color="error darken-1"
-                  @click="editProfileDialog = false"
-                >Close</v-btn>
-              </v-card-actions>
-            </v-card>
-
-          </v-dialog>
+            :user="user"
+          ></edit-profile-dialog>
 
         </v-layout>
         <!-- End of profile Name and edit profile button -->
@@ -291,14 +163,14 @@
 
 <script>
 
-  import {getUserImage, rules, sendEditUserRequest} from "../ProfileService";
+  import {deleteProfilePhoto, getUserImage, putProfilePhoto} from "../ProfileService";
   import {endpoint} from "../../../Utilities/endpoint";
-  import {sendLoginRequest} from "../../../Utilities/loginPortal";
+  import EditProfileDialog from "./EditProfileDialog/EditProfileDialog";
 
   export default {
 
     name: "profile-info-card",
-
+    components: {EditProfileDialog},
     props: {
       user: {
         type: Object,
@@ -335,27 +207,11 @@
         userId: null,
         userPhoto: null,
         uploadPhotoDialog: false,
-        editProfileDialog: false,
         isDragging: false,
         dragCount: 0,
         imageName: '',
         imageFile: '',
-        imageUrl: '',
-        newPassword: '',
-        oldPassword: '',
-        confirmNewPassword: '',
-        editPassword: false,
-        editName: false,
-        passwordRules: [rules.stringLessThan256],
-        nameRules: [rules.requiredString, rules.stringLessThan128],
-        oldPasswordIsValid: false,
-        oldPasswordErrors: [],
-        newPasswordIsValid: false,
-        newPasswordErrors: [],
-        givenName: '',
-        familyName: '',
-        hasValidEditData: false,
-        validForm: false
+        imageUrl: ''
       }
     },
 
@@ -364,10 +220,6 @@
       "imageName": {
         handler: "onImageNameChanged",
         immediate: true
-      },
-
-      "editProfileDialog": {
-        handler: "onEditProfileDialogOpened"
       }
     },
 
@@ -498,81 +350,6 @@
           // User not found
           this.$router.push('/');
         }
-      },
-
-      editUser: async function () {
-        this.validateAll();
-
-        if (this.hasValidEditData) {
-          let user = {};
-          if (this.givenName !== this.user.givenName) {
-            user.givenName = this.givenName;
-          }
-          if (this.familyName !== this.user.familyName) {
-            user.familyName = this.familyName;
-          }
-          if (this.newPassword) {
-            user.password = this.newPassword;
-          }
-          const response = await sendEditUserRequest(user);
-          if (response.status === 200) {
-            alert("Details updated successfully");
-            this.$router.go(0);
-          } else if (response.status === 400) {
-            this.newPasswordErrors.push("One of your fields is causing a server error, please update and try again");
-            this.givenNameErrors.push("One of your fields is causing a server error, please update and try again");
-            this.familyNameErrors.push("One of your fields is causing a server error, please update and try again");
-            this.newPasswordIsValid = false;
-            this.hasValidGivenName = false;
-            this.hasValidFamilyName = false;
-          } else if (response.status === 401 || response.status === 403) {
-            this.oldPasswordErrors.push("Authentication failed, please enter your current password again");
-            this.oldPasswordIsValid = false;
-          } else if (response.status === 404) {
-            alert("User not found, please log in again");
-            this.$router.push('/');
-          } else {
-            alert("Server error, please try again");
-          }
-        }
-      },
-
-      validateOldPassword: async function () {
-        let response = await sendLoginRequest({"username": this.user.username, "password": this.oldPassword});
-
-        if (response.status === 200) {
-          this.oldPasswordIsValid = true;
-          this.oldPasswordErrors = [];
-        } else {
-          this.oldPasswordIsValid = false;
-          this.oldPasswordErrors.push("Incorrect password, please try again")
-        }
-      },
-
-      validateNewPassword: function () {
-        if (this.newPassword !== this.confirmNewPassword) {
-          this.newPasswordIsValid = false;
-          this.newPasswordErrors.push("Your passwords do not match, please try again");
-        } else {
-          this.newPasswordIsValid = true;
-          this.newPasswordErrors = [];
-        }
-      },
-
-      validateAll: function () {
-        this.$refs.form.validate();
-        if (this.newPassword) {
-          this.validateNewPassword();
-          this.validateOldPassword();
-          this.hasValidEditData = (this.hasValidGivenName && this.hasValidFamilyName && this.newPasswordIsValid && this.oldPasswordIsValid && this.validForm);
-        } else {
-          this.hasValidEditData = (this.hasValidGivenName && this.hasValidFamilyName && this.validForm);
-        }
-      },
-
-      onEditProfileDialogOpened: function() {
-        this.givenName = this.user.givenName;
-        this.familyName = this.user.familyName;
       }
     },
 
@@ -623,12 +400,6 @@
     z-index: 1;
   }
 
-  .edit-profile-btn {
-    right:15px;
-    bottom: 15px;
-    z-index: 1;
-  }
-
   .uploader {
     justify-content: center;
     align-content: center;
@@ -673,11 +444,6 @@
 
   .image-preview {
     margin: 10px;
-  }
-
-  .information {
-    -webkit-text-fill-color: $error;
-    text-align: right;
   }
 
   .username {
