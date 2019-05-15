@@ -1,6 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <v-dialog
-    v-model="editProfileDialog"
+  <div id="edit-profile-dialog">
+    <v-dialog
+    v-model="dialog"
     persistent
     width="40%"
   >
@@ -102,11 +103,10 @@
                   :error-messages="newPasswordErrors"
                   v-on:keyup.enter="editUser"
                 ></v-text-field>
-                editProfileDialog
               </v-flex>
 
               <v-flex xs12>
-                <h4 class="information">Please change the fields you wish to edit</h4>
+                <p class="information">Please change the fields you wish to edit</p>
               </v-flex>
 
             </v-layout>
@@ -125,13 +125,14 @@
         <v-btn
           flat
           color="error darken-1"
-          @click="editProfileDialog = false"
+          @click="closeDialog"
         >Close
         </v-btn>
       </v-card-actions>
     </v-card>
 
   </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -140,7 +141,6 @@
   import {sendLoginRequest} from "../../../../Utilities/loginPortal";
 
   export default {
-
 
     name: "edit-profile-dialog",
 
@@ -161,7 +161,7 @@
 
     data() {
       return {
-        editProfileDialog: false,
+        dialog: false,
         givenName: "",
         familyName: "",
         validForm: false,
@@ -182,7 +182,8 @@
     watch: {
       user: {
         handler: "onUserChanged",
-        deep: true
+        deep: true,
+        immediate: true
       }
     },
 
@@ -197,6 +198,16 @@
       },
 
       /**
+       * Method to close the dialog and reset the error lists.
+       */
+      closeDialog: function() {
+        this.dialog = false;
+        this.$refs.form.resetValidation();
+        this.newPasswordErrors = [];
+        this.oldPasswordErrors = [];
+      },
+
+      /**
        * Method called when the edit user button is pressed.
        * Sends a request to the server to update the user and handles the response appropriately.
        */
@@ -204,41 +215,66 @@
         this.validateAll();
         if (this.hasValidEditData) {
           let user = {};
+          let userChanged = false;
           if (this.givenName !== this.user.givenName) {
             user.givenName = this.givenName;
+            userChanged = true;
           }
           if (this.familyName !== this.user.familyName) {
             user.familyName = this.familyName;
+            userChanged = true;
           }
           if (this.newPassword) {
             user.password = this.newPassword;
+            userChanged = true;
           }
-          try {
-            const response = await sendEditUserRequest(user);
-            if (response.status === 200) {
-              //TODO: implement notification to the user here.
-              // this.$router.go(0);
-              // emit an event to update the current details.
+          if (userChanged) {
+            try {
+              const response = await sendEditUserRequest(user);
+              if (response.status === 200) {
+                this.$emit("displayMessage", {
+                  text: "Change successful",
+                  color: "green",
+                  showSnackbar: true
+                });
+                this.$emit("userChanged", {
+                  givenName: this.givenName,
+                  familyName: this.familyName
+                });
+                this.dialog = false;
+              }
+            } catch (error) {
+              if (error.status === 400) {
+                this.newPasswordErrors.push("Please make a valid change to proceed");
+                this.newPasswordIsValid = false;
+              } else if (error.status === 401 || error.status === 403) {
+                this.oldPasswordErrors.push("Authentication failed, please enter your current password again");
+                this.oldPasswordIsValid = false;
+              } else if (error.status === 404) {
+                this.$emit("displayMessage", {
+                  text: "Error: User not found, please log in again",
+                  color: "red",
+                  showSnackbar: true
+                });
+                this.dialog = false;
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("userId");
+                this.$emit("loggedOut");
+              } else {
+                this.$emit("displayMessage", {
+                  text: "Error: Server error, please try again later",
+                  color: "red",
+                  showSnackbar: true
+                });
+              }
             }
-          } catch (error) {
-            if (error.status === 400) {
-              this.newPasswordErrors.push("One of your fields is causing a server error, please update and try again");
-              this.givenNameErrors.push("One of your fields is causing a server error, please update and try again");
-              this.familyNameErrors.push("One of your fields is causing a server error, please update and try again");
-              this.newPasswordIsValid = false;
-              this.hasValidGivenName = false;
-              this.hasValidFamilyName = false;
-            } else if (error.status === 401 || error.status === 403) {
-              this.oldPasswordErrors.push("Authentication failed, please enter your current password again");
-              this.oldPasswordIsValid = false;
-            } else if (error.status === 404) {
-              //TODO: implement notification to the user here. Please login again
-              localStorage.removeItem("authToken");
-              localStorage.removeItem("userId");
-              this.$router.go(0);
-            } else {
-              alert("Server error, please try again");
-            }
+          } else {
+            this.$emit("displayMessage", {
+              text: "No changes made",
+              color: "yellow",
+              showSnackbar: true
+            });
+            this.closeDialog();
           }
         }
       },
@@ -284,9 +320,9 @@
         if (this.newPassword) {
           this.validateNewPassword();
           this.validateOldPassword();
-          this.hasValidEditData = (this.hasValidGivenName && this.hasValidFamilyName && this.newPasswordIsValid && this.oldPasswordIsValid && this.validForm);
+          this.hasValidEditData = (this.newPasswordIsValid && this.oldPasswordIsValid && this.validForm);
         } else {
-          this.hasValidEditData = (this.hasValidGivenName && this.hasValidFamilyName && this.validForm);
+          this.hasValidEditData = this.validForm;
         }
       }
     }

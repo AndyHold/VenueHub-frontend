@@ -4,7 +4,11 @@ import {endpoint} from "../../Utilities/endpoint";
 export const rules = {
   requiredArray: field => field.length > 0 || "This field is required",
   requiredString: field => !!field || "This field is required",
-  stringLessThanLimit: limit => (field => (field && field.length <= limit) || `This field is too long, character limit is ${limit}, you have ${field.length}`)
+  requiredNumber: field => field !== "" || "This field is required",
+  stringLessThanLimit: limit => (field => (field.length <= limit) || `This field is too long, character limit is ${limit}, you have ${field.length}`),
+  invalidCharacters: field => /^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\n]+$/i.test(field) || "This field is using invalid characters, use only letters, numbers and any of these: ,.+='\"(){}$%&#@!?",
+  mustBeNumber: field => !isNaN(field) || "This field is invalid, it must contain a number",
+  validRange: limit => (field => Math.abs(parseFloat(field)) <= limit || `This field is invalid, must be a number between ${-limit} and ${limit}`)
 };
 
 export async function putProfilePhoto (fileContents, fileType) {

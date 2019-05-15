@@ -108,17 +108,25 @@
       </v-dialog>
 
     </v-layout>
+    <!-- Warning Prompts -->
+    <prompt-dialog
+      :dialog="warningMessage.showPromptDialog"
+      :message="warningMessage.message"
+      :onConfirm="warningMessage.confirmationFunction"
+      v-on:promptEnded="promptEnded"
+    />
   </v-container>
 </template>
 
 <script>
   import {endpoint} from "../../../Utilities/endpoint";
   import {deleteVenuePhoto, makePrimary} from "../VenueService";
+  import PromptDialog from "../../App/PromptDialog/PromptDialog";
 
   export default {
 
     name: "PhotosCard",
-
+    components: {PromptDialog},
     props: {
       photos: {
         type: Array,
@@ -139,12 +147,25 @@
         viewPhotoLargeDialog: false,
         currentPhoto: {
           photoFilename: false,
-          photoDescription: ""
+          photoDescription: "",
+        },
+        warningMessage: {
+          showPromptDialog: false,
+          message: "",
+          confirmationFunction: null
         }
       }
     },
 
     methods: {
+
+      promptEnded: function() {
+        this.warningMessage.showPromptDialog = false;
+      },
+
+      displayPrompt: function(prompt) {
+        this.warningMessage = prompt;
+      },
 
       getVenuePhotoEndpoint: function (photo) {
         return endpoint(`/venues/${this.venueId}/photos/${photo.photoFilename}`);
@@ -164,46 +185,49 @@
       },
 
       deletePhoto: async function () {
-        // TODO: implement an are you sure pop up
-        let response = await deleteVenuePhoto(this.venueId, this.currentPhoto.photoFilename);
-        if (response.status === 200) {
-          // TODO: implement an alert message here.
-          // Photo Deleted Successfully
-          this.$router.go();
-        } else if (response.status === 401) {
-          // TODO: implement an alert message here.
-          // Forbidden, you do not have permission to perform this action.
-        } else if (response.status === 403) {
-          // TODO: implement an alert message here.
-          // Unauthorized, please log in
-          this.$router.push('/');
-        } else if (response.status === 404) {
-          // TODO: implement an alert message here.
-          // User not found
-          this.$router.push('/');
-        }
+        this.displayPrompt({
+          showPromptDialog: true,
+          message: "This deletion will be permanent.\nAre you sure you want to delete this photo?",
+          confirmationFunction: this.deletePhotoCallback
+        });
       },
 
       setPhotoPrimary: async function() {
         try {
           await makePrimary(this.venueId, this.currentPhoto.photoFilename);
-          // TODO: make custom pop up
+          this.$emit("displayMessage", {
+            text: "Primary photo successfully updated",
+            color: "green",
+            showSnackbar: true
+          });
           // Successfully changed primary photo
           this.$router.go(0);
         } catch (error) {
-          if (error.status === 401) {
-            // TODO: make custom pop up
-            // Unauthorized
-            console.log(error);
-          } else if (error.status === 403) {
-            // TODO: make custom pop up
-            // Forbidden
-            console.log(error);
-          } else if (error.status === 404) {
-            // TODO: make custom pop up
-            // Not Found
-            console.log(error);
-          }
+          this.$emit("displayMessage", {
+            text: "Error: " + error.message,
+            color: "red",
+            showSnackbar: true
+          });
+        }
+      },
+
+      deletePhotoCallback: async function () {
+        try {
+          await deleteVenuePhoto(this.venueId, this.currentPhoto.photoFilename);
+          this.$emit("displayMessage", {
+            text: "Photo deleted successfully",
+            color: "green",
+            showSnackbar: true
+          });
+          this.$emit("photoDeleted", this.currentPhoto.isPrimary);
+          this.closeVenuePhotoDialog()
+          // Photo Deleted Successfully
+        } catch (error) {
+          this.$emit("displayMessage", {
+            text: "Error: " + error.message,
+            color: "red",
+            showSnackbar: true
+          });
         }
       }
     }

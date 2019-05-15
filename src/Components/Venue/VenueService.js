@@ -33,7 +33,6 @@ export async function sendVenueUpdate (editedVenue, currentVenue, venueId) {
   const authToken = localStorage.getItem("authToken");
 
   const venueDifferences = parseVenues(editedVenue, currentVenue);
-  console.log(venueDifferences);
   return superAgent.patch(endpoint(`/venues/${venueId}`))
     .set("x-authorization", authToken)
     .send(venueDifferences);

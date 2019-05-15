@@ -1,155 +1,172 @@
 <template>
-    <div id="profile">
-      <!-- Title Bar -->
-      <v-toolbar fixed color="primary" class="page-header" z-index="9999">
-        <navigation-menu title="true"></navigation-menu>
-        <v-toolbar-title
-          v-if="owner"
-          class="page-title"
+  <div id="profile">
+    <!-- Title Bar -->
+    <v-toolbar fixed color="primary" class="page-header" z-index="9999">
+      <navigation-menu title="true"></navigation-menu>
+      <v-toolbar-title
+        v-if="owner"
+        class="page-title"
+      >
+        Welcome {{ user.givenName }}
+      </v-toolbar-title>
+      <v-toolbar-title
+        v-else
+        class="page-title"
+      >
+        {{ user.givenName }} {{ user.familyName }}
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-toolbar-items class="logout-button">
+        <v-btn v-if="isLoggedIn" color="blue-grey lighten-4" @click="logout" round fab>
+          <v-icon color="primary">logout</v-icon>
+        </v-btn>
+      </v-toolbar-items>
+    </v-toolbar>
+
+    <!-- Photo and Name Card -->
+    <v-layout fluid justify-center list-grid class="main-container">
+      <v-flex xs4>
+        <profile-info-card
+          :user="user"
+          :owner="owner"
+          v-on:userChanged="userEdited"
+          v-on:loggedOut="logoutUser"
+          v-on:displayMessage="displayMessage"
+        ></profile-info-card>
+      </v-flex>
+    </v-layout>
+
+    <!-- Venues -->
+    <v-layout
+      fluid
+      jusify-center
+      list-grid
+      class="venues-layout">
+
+      <v-flex xs12>
+        <v-card
+          elevation="10"
         >
-          Welcome {{ user.givenName }}
-        </v-toolbar-title>
-        <v-toolbar-title
-          v-else
-          class="page-title"
+
+          <v-card-title
+            primary-title
+            color="primary darken-1"
+            class="headline primary title-text"
+          >
+            Venues
+          </v-card-title>
+
+          <v-card-actions>
+            <v-spacer align="right">
+
+              <add-venue-dialog
+                v-if="owner"
+                :categories="categories"
+                v-on:displayMessage="displayMessage"
+              ></add-venue-dialog>
+            </v-spacer>
+          </v-card-actions>
+
+          <v-card-text>
+
+            <v-spacer
+              v-if="!this.venues.length"
+              align="center"
+            >
+              <h4 v-if="owner" class="font-weight-regular">
+                You have no venues
+              </h4>
+              <h4 v-else class="font-weight-regular">
+                This user has no venues
+              </h4>
+            </v-spacer>
+
+            <!-- Venue Cards -->
+            <venue-card
+              v-for="venue in venues"
+              v-bind:key="venue.venueId"
+              :venue="venue"
+              :categories="categories"
+            ></venue-card>
+
+          </v-card-text>
+
+        </v-card>
+      </v-flex>
+
+    </v-layout>
+
+    <!-- Reviews -->
+    <v-layout fluid jusify-center list-grid class="venues-layout">
+
+      <v-flex xs12>
+        <v-card
+          elevation="10"
+          class="card-background reviews-card"
         >
-          {{ user.givenName }} {{ user.familyName }}
-        </v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-toolbar-items class="logout-button">
-          <v-btn v-if="isLoggedIn" color="blue-grey lighten-4" @click="logout" round fab><v-icon color="primary">logout</v-icon></v-btn>
-        </v-toolbar-items>
-      </v-toolbar>
 
-      <!-- Photo and Name Card -->
-      <v-layout fluid justify-center list-grid class="main-container">
-        <v-flex xs4>
-          <profile-info-card
-            :user="user"
-            :owner="owner"
-          ></profile-info-card>
-        </v-flex>
-      </v-layout>
-
-      <!-- Venues -->
-      <v-layout
-        fluid
-        jusify-center
-        list-grid
-        class="venues-layout">
-
-        <v-flex xs12>
-          <v-card
-            elevation="10"
+          <v-card-title
+            primary-title
+            color="primary darken-1"
+            class="headline primary title-text"
           >
+            Reviews
+          </v-card-title>
 
-            <v-card-title
-              primary-title
-              color="primary darken-1"
-              class="headline primary title-text"
+          <v-card-text>
+
+            <!-- No Reviews Label -->
+            <v-spacer
+              v-if="!this.reviews.length || !isLoggedIn"
+              align="center"
             >
-              Venues
-            </v-card-title>
+              <h4 v-if="owner" class="font-weight-regular">
+                You have no reviews
+              </h4>
+              <h4 v-else-if="isLoggedIn" class="font-weight-regular">
+                This user has no reviews
+              </h4>
+              <h4 v-else class="font-weight-regular">
+                Please log in or sign up to see user reviews
+              </h4>
+            </v-spacer>
 
-            <v-card-actions>
-              <v-spacer align="right">
+            <!-- Reviews -->
+            <review-card
+              v-if="isLoggedIn"
+              v-for="review in reviews"
+              v-bind:key="review.venue.venueId"
+              :review="review"
+            ></review-card>
 
-                <add-venue-dialog
-                  v-if="owner"
-                  :categories="categories"
-                ></add-venue-dialog>
-              </v-spacer>
-            </v-card-actions>
+          </v-card-text>
+        </v-card>
+      </v-flex>
 
-            <v-card-text>
+    </v-layout>
 
-              <v-spacer
-                v-if="!this.venues.length"
-                align="center"
-              >
-                <h4 v-if="owner" class="font-weight-regular">
-                  You have no venues
-                </h4>
-                <h4 v-else class="font-weight-regular">
-                  This user has no venues
-                </h4>
-              </v-spacer>
-
-              <!-- Venue Cards -->
-              <venue-card
-                v-for="venue in venues"
-                v-bind:key="venue.venueId"
-                :venue="venue"
-                :categories="categories">
-              </venue-card>
-
-            </v-card-text>
-
-          </v-card>
-        </v-flex>
-
-      </v-layout>
-
-      <!-- Reviews -->
-      <v-layout fluid jusify-center list-grid class="venues-layout">
-
-        <v-flex xs12>
-          <v-card
-            elevation="10"
-            class="card-background reviews-card"
-          >
-
-            <v-card-title
-              primary-title
-              color="primary darken-1"
-              class="headline primary title-text"
-            >
-              Reviews
-            </v-card-title>
-
-            <v-card-text>
-
-              <!-- No Reviews Label -->
-              <v-spacer
-                v-if="!this.reviews.length || !isLoggedIn"
-                align="center"
-              >
-                <h4 v-if="owner" class="font-weight-regular">
-                  You have no reviews
-                </h4>
-                <h4 v-else-if="isLoggedIn" class="font-weight-regular">
-                  This user has no reviews
-                </h4>
-                <h4 v-else class="font-weight-regular">
-                  Please log in or sign up to see user reviews
-                </h4>
-              </v-spacer>
-
-              <!-- Reviews -->
-              <review-card
-                v-if="isLoggedIn"
-                v-for="review in reviews"
-                v-bind:key="review.venue.venueId"
-                :review="review"
-              ></review-card>
-
-            </v-card-text>
-          </v-card>
-        </v-flex>
-
-      </v-layout>
-
-    </div>
+    <v-snackbar
+      v-model="snackBar.showSnackbar"
+      :bottom="true"
+      :right="true"
+      :timeout="3000"
+    >
+      {{ snackBar.text }}
+      <v-btn
+        :color="snackBar.color"
+        flat
+        @click="snackBar.showSnackbar = false"
+      >Dismiss</v-btn>
+    </v-snackbar>
+  </div>
 </template>
 
 <script>
+
   import UserStorage from "../../DataStorage/UserStorage";
   import {sendLogoutRequest} from "../../Utilities/loginPortal";
   import {endpoint} from "../../Utilities/endpoint";
-  import {
-    getUserDetails, getUserReviews,
-    requestCategories, requestUserVenues
-  } from "./ProfileService";
+  import {getUserDetails, getUserReviews, requestCategories, requestUserVenues} from "./ProfileService";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
   import VenueCard from "../Search/VenueCard/VenueCard";
   import ReviewCard from "./ReviewCard/ReviewCard";
@@ -167,7 +184,7 @@
       ReviewCard,
     },
 
-    data () {
+    data() {
       return {
         user: {
           userId: null,
@@ -180,11 +197,20 @@
         categories: [],
         reviews: [],
         owner: false,
-        isLoggedIn: false
+        isLoggedIn: false,
+        snackBar: {
+          showSnackbar: false,
+          text: "",
+          color: ""
+        }
       }
     },
 
     methods: {
+
+      displayMessage: function(snackBar) {
+        this.snackBar = snackBar;
+      },
 
       logout: async function () {
         try {
@@ -211,13 +237,12 @@
             this.user.email = response.body.email;
           }
         } catch (error) {
-          // TODO: implement custom pop up here
           // User not found
-          if (this.user.userId === parseInt(UserStorage.data.userId) ||
-            this.user.userId === parseInt(localStorage.getItem("userId"))) {
+          if (this.user.userId === parseInt(localStorage.getItem("userId"))) {
             localStorage.removeItem("authToken");
             localStorage.removeItem("userId");
-            UserStorage.methods.logout();
+            this.isLoggedIn = false;
+            this.owner = false;
           }
           this.$router.push('/');
         }
@@ -229,11 +254,21 @@
           this.reviews = this.getReviewVenuePhotos(response.body);
         } catch (error) {
           if (error.status === 401) {
-            // TODO implement custom pop up here
+            this.displayMessage({
+              text: "Error: You are not authorized to view this users reviews.",
+              color: "red",
+              showSnackbar: true
+            });
             // Unauthorized, please log in
           } else if (error.status === 404) {
-            // TODO implement custom pop up here
-            // User Not Found
+            // User not found
+            if (this.user.userId === parseInt(localStorage.getItem("userId"))) {
+              localStorage.removeItem("authToken");
+              localStorage.removeItem("userId");
+              this.isLoggedIn = false;
+              this.owner = false;
+            }
+            this.$router.push('/');
           }
         }
       },
@@ -247,6 +282,16 @@
           }
         }
         return reviews;
+      },
+
+      userEdited: function (userData) {
+        this.user.givenName = userData.givenName;
+        this.user.familyName = userData.familyName;
+      },
+
+      logoutUser: function () {
+        this.owner = false;
+        this.isLoggedIn = false;
       }
     },
 

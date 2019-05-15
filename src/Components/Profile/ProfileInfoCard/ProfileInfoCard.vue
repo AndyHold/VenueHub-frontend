@@ -1,5 +1,5 @@
 <template>
-  <v-flex id="profile-info">
+  <v-flex id="profile-info-card">
     <v-card elevation="10" class="profile-card">
       <v-layout column list-grid>
 
@@ -27,6 +27,8 @@
             <upload-photo-dialog
               v-if="owner"
               :userPhoto="userPhoto"
+              v-on:loggedOut="$emit('loggedOut')"
+              v-on:displayMessage="displayMessage"
             ></upload-photo-dialog>
           </v-card>
         </v-flex>
@@ -45,7 +47,10 @@
 
           <edit-profile-dialog
             v-if="owner"
-            :user="user"
+            :user="dataUser"
+            v-on:userChanged="userEdited"
+            v-on:loggedOut="$emit('loggedOut')"
+            v-on:displayMessage="displayMessage"
           ></edit-profile-dialog>
 
         </v-layout>
@@ -114,11 +119,27 @@
     data() {
       return {
         userId: null,
-        userPhoto: null
+        userPhoto: null,
+        dataUser: {
+          givenName: "",
+          familyName: ""
+        }
+      }
+    },
+
+    watch: {
+      user: {
+        handler: "onUserChanged",
+        immediate: true,
+        deep: true
       }
     },
 
     methods: {
+
+      displayMessage: function (snackBar) {
+        this.$emit("displayMessage", snackBar);
+      },
 
       getUserPhoto: async function () {
         try {
@@ -127,6 +148,15 @@
         } catch (error) {
           this.userPhoto = false;
         }
+      },
+
+      onUserChanged: function () {
+        this.dataUser.givenName = this.user.givenName;
+        this.dataUser.familyName = this.user.familyName;
+      },
+
+      userEdited: function (userData) {
+        this.$emit("userChanged", userData);
       }
     },
 

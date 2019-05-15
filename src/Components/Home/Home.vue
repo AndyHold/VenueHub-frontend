@@ -254,6 +254,7 @@
     },
 
     methods: {
+
       async login() {
         let user;
         this.validateAllLoginFields();

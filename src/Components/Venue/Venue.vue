@@ -245,28 +245,23 @@
                 <h3 class="font-weight-regular">
                   Description
                 </h3>
+                <v-expansion-panel class="card-background">
+                  <v-expansion-panel-content class="card-background">
+                  <!-- TODO: Make this look good -->
+                    <template v-slot:header>
+                      <p>
+                        {{ venue.shortDescription }}
+                      </p>
+                    </template>
+
+                    <v-card-text>
+                      <pre v-if="venue.longDescription" class="description-text">{{ venue.longDescription }}</pre>
+                      <p v-else>No further details available for this venue</p>
+                    </v-card-text>
+
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
               </v-flex>
-
-              <!-- Description Row -->
-              <v-flex>
-                <pre class="description-text" v-if="longDescription">{{ venue.shortDescription }}<br/>{{ venue.longDescription }}</pre>
-                <p v-else>
-                  {{ venue.shortDescription }}
-                </p>
-              </v-flex>
-
-              <!-- Button Row -->
-              <v-spacer align="right">
-                <v-spacer v-if="venue.longDescription" align="right">
-                  <v-btn v-if="longDescription" v-on:click="toggleLongDescription" flat color="grey" class="description-button">
-                    Show Less
-                  </v-btn>
-                  <v-btn v-else v-on:click="toggleLongDescription" flat color="grey" class="description-button">
-                    Show More
-                  </v-btn>
-                </v-spacer>
-              </v-spacer>
-
             </v-layout>
 
             <v-dialog
@@ -466,9 +461,12 @@
           </v-card-title>
           <v-responsive>
             <photos-card
-            :photos="venue.photos"
-            :venueId="venueId"
-            :isAdmin="isAdmin"></photos-card>
+              :photos="venue.photos"
+              :venueId="venueId"
+              :isAdmin="isAdmin"
+              v-on:displayMessage="displayMessage"
+              v-on:photoDeleted="photosChanged"
+            ></photos-card>
           </v-responsive>
 
           <!-- Upload Button -->
@@ -492,7 +490,7 @@
               </v-btn>
             </template>
 
-            <v-card class="card-background">
+            <v-card>
               <v-card-title
                 class="headline primary title-text"
                 color="primary darken-1"
@@ -765,6 +763,21 @@
       </v-flex>
     </v-layout>
 
+    <!-- Error messages -->
+    <v-snackbar
+      v-model="snackBar.showSnackbar"
+      :bottom="true"
+      :right="true"
+      :timeout="3000"
+    >
+      {{ snackBar.text }}
+      <v-btn
+        :color="snackBar.color"
+        flat
+        @click="snackBar.showSnackbar = false"
+      >Dismiss</v-btn>
+    </v-snackbar>
+
   </div>
 </template>
 
@@ -772,7 +785,6 @@
 
   import {getUserImage, requestVenueDetails} from "../Search/VenueCard/VenueCardService";
   import {endpoint} from "../../Utilities/endpoint";
-  import UserStorage from "../../DataStorage/UserStorage";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
   import ReviewCard from "./ReviewCard/ReviewCard";
   import PhotosCard from "./PhotosCard/PhotosCard";
@@ -785,12 +797,14 @@
     sendVenueUpdate
   } from "./VenueService";
   import {getCategories} from "../Search/SearchService";
+  import PromptDialog from "../App/PromptDialog/PromptDialog";
 
   export default {
 
     name: "Venue",
 
     components: {
+      PromptDialog,
       NavigationMenu,
       ReviewCard,
       PhotosCard
@@ -862,7 +876,12 @@
         venuePhotoDescriptionErrors: [],
         validVenuePhoto: false,
         venuePhotoErrors: [],
-        isLoggedIn: false
+        isLoggedIn: false,
+        snackBar: {
+          showSnackbar: false,
+          text: "",
+          color: ""
+        }
       }
   },
 
@@ -874,6 +893,17 @@
     },
 
     methods: {
+
+      photosChanged: async function (isPrimary) {
+        await this.getVenueDetails();
+        if (isPrimary) {
+          this.setMainPhoto();
+        }
+      },
+
+      displayMessage: function(snackBar) {
+        this.snackBar = snackBar;
+      },
 
       getCategoryName: function (categoryId) {
         for (let index in this.categories) {
@@ -951,15 +981,16 @@
       logout: async function () {
         try {
           await sendLogoutRequest();
-          UserStorage.methods.logout();
           localStorage.removeItem("userId");
           localStorage.removeItem("authToken");
+          this.isAdmin = false;
+          this.isLoggedIn = false;
         } catch (error) {
-          UserStorage.methods.logout();
           localStorage.removeItem("userId");
           localStorage.removeItem("authToken");
+          this.isAdmin = false;
+          this.isLoggedIn = false;
         }
-        this.$router.go(0);
       },
 
       getMainPhoto: function () {
@@ -968,7 +999,7 @@
             return this.venue["photos"][i]["photoFilename"];
           }
         }
-        return null;
+        return false;
       },
 
       pickFile: function () {
@@ -985,7 +1016,11 @@
       uploadPhoto: async function () {
         const fileSize = this.imageFile.size;
         if (fileSize > 20971520) {
-          // TODO: implement an alert message here.
+          this.displayMessage({
+            text: "Error: File size too large, limit is 20mb.",
+            color: "red",
+            showSnackbar: true
+          });
           // Image is too large, please resize or chose another image
         } else {
           let form = new FormData();
@@ -996,32 +1031,28 @@
           await form.append("makePrimary", this.venuePhoto.makePrimary.toString());
           try {
             let response = await putVenuePhoto(form, this.venueId);
-            if (response.status === 200) {
-              // TODO: implement an alert message here.
+            if ([200, 201].includes(response.status)) {
               // Profile Picture Updated Successfully
-              this.$router.go(0);
-            } else if (response.status === 201) {
-              // TODO: implement an alert message here.
-              // Profile Picture Added Successfully
               this.$router.go(0);
             }
           } catch (error) {
-            if (error.status === 400) {
-              // TODO: implement an alert message here.
-              // Bad image
-              console.log(error);
-            } else if (error.status === 401) {
-              // TODO: implement an alert message here.
-              // Forbidden, you do not have permission to perform this action.
-              console.log(error);
-            } else if (error.status === 403) {
-              // TODO: implement an alert message here.
-              // Unauthorized, please log in
-              this.$router.push('/');
+            if ([400, 401, 403].includes(error.status)) {
+              this.displayMessage({
+                text: "Error: " + error.message,
+                color: "red",
+                showSnackbar: true
+              });
             } else if (error.status === 404) {
-              // TODO: implement an alert message here.
+              this.displayMessage({
+                text: "Error: User not found, please log in again.",
+                color: "red",
+                showSnackbar: true
+              });
+              localStorage.removeItem("authToken");
+              localStorage.removeItem("userId");
+              this.isLoggedIn = false;
+              this.isAdmin = false;
               // User not found
-              this.$router.push('/');
             }
           }
         }
@@ -1159,38 +1190,53 @@
           this.validVenuePosition);
       },
 
-      getPosition: function () {
+      /**
+       * Method to get the current position of the user from their browser.
+       */
+      getPosition: async function () {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition((position) => {
-            this.editedVenue.latitude = position.coords.latitude;
-            this.editedVenue.longitude = position.coords.longitude;
+            this.newVenue.latitude = position.coords.latitude;
+            this.newVenue.longitude = position.coords.longitude;
+          }, (error) => {
+            this.displayMessage({
+              text: "Error: " + error.message,
+              color: "red",
+              showSnackbar: true
+            });
           });
         } else {
-          // TODO: implement an error pop up here
-          // Could not retrieve your location.
+          this.displayMessage({
+            text: "Error: Could not get your current position",
+            color: "red",
+            showSnackbar: true
+          });
         }
       },
 
       editVenue: async function () {
         this.validateAll();
         if (this.hasValidInput) {
-          let response = await sendVenueUpdate(this.editedVenue, this.venue, this.venueId);
-          if (response.status === 400) {
-            // TODO: implement a custom pop up
-            // One or more of your fields have invalid values
-          } else if (response.status === 401) {
-            // TODO: implement a custom pop up
-            // Forbidden, You do not have permission to perform this action.
-          } else if (response.status === 403) {
-            // TODO: implement a custom pop up
-            // Unauthorized, please log in again
-          } else if (response.status === 404) {
-            // TODO: implement a custom pop up
-            // This venue was not found.
-          } else {
-            // TODO: implement a custom pop up
-            // Venue updated successfully
-            this.$router.go(0);
+          try {
+            let response = await sendVenueUpdate(this.editedVenue, this.venue, this.venueId);
+            if (response.status === 200) {
+              this.displayMessage({
+                text: "Venue update successfully",
+                color: "green",
+                showSnackbar: true
+              });
+              this.getVenueDetails();
+            }
+          } catch (error) {
+            if ([400, 401, 403].includes(error.status)) {
+              this.displayMessage({
+                text: "Error: " + error.message,
+                color: "red",
+                showSnackbar: true
+              });
+            } else {
+              this.$router.push("/");
+            }
           }
         }
       },
@@ -1238,23 +1284,19 @@
         if (this.hasValidReviewInfo) {
           try {
             await postReview(this.review, this.venueId);
-            // TODO: Implement pop up here
+            this.$emit("displayMessage", {
+              text: "review successfully added.",
+              color: "green",
+              showSnackbar: true
+            });
             // Successfully added review
-            this.$router.go(0);
+            this.getVenueReviews();
           } catch (error) {
-            if (error.status === 400) {
-              // TODO: Implement pop up here
-              // Bad request
-            } else if (error.status === 401) {
-              // TODO: Implement pop up here
-              // Unauthorized
-            } else if (error.status === 403) {
-              // TODO: Implement pop up here
-              // Forbidden
-            } else if (error.status === 404) {
-              // TODO: Implement pop up here
-              // Not Found
-            }
+            this.$emit("displayMessage", {
+              text: "Error: " + error.message,
+              color: "red",
+              showSnackbar: true
+            });
           }
         }
       },
@@ -1324,60 +1366,83 @@
 
       goToUserPage: function (userId) {
         this.$router.push(`/profile/${userId}`)
+      },
+
+      getVenueDetails: async function () {
+        try {
+          let response = await requestVenueDetails(this.venueId);
+          this.venue = response.body;
+          this.isAdmin = parseInt(this.venue["admin"].userId) === parseInt(localStorage.getItem("userId"));
+          this.setEditedVenue();
+        } catch (error) {
+          this.displayMessage({
+            text: "Error: " + error.message,
+            color: "red",
+            showSnackbar: true
+          });
+        }
+      },
+
+      setMainPhoto: async function () {
+        let photo = await this.getMainPhoto();
+        if (photo) {
+          this.mainPhoto = endpoint(`/venues/${this.venueId}/photos/${photo}`);
+        } else {
+          this.mainPhoto = false;
+        }
+      },
+
+      getVenueReviews: async function () {
+        try {
+          let response = await requestVenueReviews(this.venueId);
+          this.reviews = await this.getReviewAuthorPhotos(response.body);
+          this.checkCanReview();
+        } catch (error) {
+          this.displayMessage({
+            text: "Error: Could not load venue reviews",
+            color: "red",
+            showSnackbar: true
+          });
+          // Could not load reviews
+        }
+      },
+
+      getVenueRatings: async function () {
+        try {
+          let response = await requestVenueRatings(this.venue);
+          for (let i = 0; i < response.body.length; i++) {
+            if (parseInt(this.venueId) === parseInt(response.body[i].venueId)) {
+              if (response.body[i].meanStarRating != null) {
+                this.venue.meanStarRating = response.body[i].meanStarRating;
+              } else {
+                this.venue.meanStarRating = 3;
+              }
+              if (response.body[i].modeCostRating != null) {
+                this.venue.modeCostRating = response.body[i].modeCostRating;
+              } else {
+                this.venue.modeCostRating = 0;
+              }
+            }
+          }
+        } catch (error) {
+          this.displayMessage({
+            text: "Error: Could not load venue Ratings",
+            color: "red",
+            showSnackbar: true
+          });
+          // Could not get venue ratings
+        }
       }
+
     },
 
     mounted: async function () {this.isLoggedIn = localStorage.getItem("userId") !== null;
       this.venueId = parseInt(this.$route.params.venueId);
-      try {
-        let response = await requestVenueDetails(this.venueId);
-        this.venue = response.body;
-        this.isAdmin = parseInt(this.venue["admin"].userId) === parseInt(localStorage.getItem("userId"));
-        this.setEditedVenue();
-      } catch (error) {
-        console.log(error);
-        // TODO: add custom alert here
-        // Venue not found
-        // this.$router.back(); // go back ???
-      }
-      try {
-        let response = await requestVenueRatings(this.venue);
-        console.log(response);
-        for (let i = 0; i < response.body.length; i++) {
-          if (parseInt(this.venueId) === parseInt(response.body[i].venueId)) {
-            if (response.body[i].meanStarRating != null) {
-              this.venue.meanStarRating = response.body[i].meanStarRating;
-            } else {
-              this.venue.meanStarRating = 3;
-            }
-            if (response.body[i].modeCostRating != null) {
-              this.venue.modeCostRating = response.body[i].modeCostRating;
-            } else {
-              this.venue.modeCostRating = 0;
-            }
-          }
-        }
-      } catch (error) {
-        console.log(error);
-        // TODO: add custom alert here
-        // Could not get venue ratings
-
-      }
-      try {
-        let response = await requestVenueReviews(this.venueId);
-        console.log(response);
-        this.reviews = await this.getReviewAuthorPhotos(response.body);
-        this.checkCanReview();
-      } catch (error) {
-        console.log(error);
-        // TODO: add custom alert here
-        // Could not load reviews
-      }
+      await this.getVenueDetails();
+      await this.getVenueRatings();
+      await this.getVenueReviews();
       this.getAdminPhoto();
-      let photo = await this.getMainPhoto();
-      if (photo) {
-        this.mainPhoto = endpoint(`/venues/${this.venueId}/photos/${photo}`);
-      }
+      this.setMainPhoto();
       this.categories = await getCategories();
     }
 
@@ -1389,6 +1454,10 @@
   @import "../../Resources/StyleSheets/variables";
 
   .v-card {
+    background-color: $lighter-secondary;
+  }
+
+  .card-background {
     background-color: $lighter-secondary;
   }
 
