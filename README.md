@@ -15,6 +15,7 @@ A **Front End Web Application** Built using Vue.js and Vuetify.js
 ``` bash
 # install dependencies
 npm install
+Note: Internet must be enabled for dependencies to install correctly.
 
 # serve with hot reload at localhost:8080
 npm run dev
