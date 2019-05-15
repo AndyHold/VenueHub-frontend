@@ -79,7 +79,7 @@
               </v-card>
             </v-dialog>
             <v-dialog
-              v-model="signupDialog"
+              v-model="signUpDialog"
               persistent
               width="500"
             >
@@ -210,8 +210,6 @@
 
 <script>
   import {sendLoginRequest, sendSignUpRequest} from "./../../Utilities/loginPortal";
-  import UserStorage from "../../DataStorage/UserStorage";
-  import {getUser} from "./HomeService";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
 
   export default {
@@ -230,7 +228,7 @@
         },
         confirmPassword: null,
         loginDialog: false,
-        signupDialog: false,
+        signUpDialog: false,
         userIdentity: null,
         loginPassword: null,
         hasValidUserIdentity: false,
@@ -276,11 +274,8 @@
 
             localStorage.setItem("userId", loginInfo.userId);
             localStorage.setItem("authToken", loginInfo.token);
-            const userInfo = await getUser(loginInfo.userId);
-            UserStorage.methods.setUserData(userInfo, loginInfo.userId);
             this.$router.push(`/profile/${parseInt(loginInfo.userId)}`);
           } catch (error) {
-            console.log(error);
             this.loginPasswordErrors.push("Incorrect Username or password, please try again");
           }
         }
@@ -314,7 +309,7 @@
       },
 
       closeSignUpModal() {
-        this.signupDialog = false;
+        this.signUpDialog = false;
         this.givenNameErrors = [];
         this.familyNameErrors = [];
         this.usernameErrors = [];

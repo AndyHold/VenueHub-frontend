@@ -1,5 +1,4 @@
 import { endpoint } from "./endpoint";
-import UserStorage from "../DataStorage/UserStorage";
 import superAgent from "superagent";
 
 export async function isLoggedInOrOut(to, from, next) {
@@ -7,13 +6,7 @@ export async function isLoggedInOrOut(to, from, next) {
   const authToken = localStorage.getItem("authToken");
 
   // If the userId or authToken do not exist, continue
-  if (!userId || !authToken) {
-    next();
-    return;
-  }
-
-  // If the user is already logged in, continue
-  if (UserStorage.methods.isLoggedIn()) {
+  if (!userId && !authToken) {
     next();
     return;
   }
@@ -21,17 +14,18 @@ export async function isLoggedInOrOut(to, from, next) {
   // Request the user details and update them in the UserStorage
   superAgent.get(endpoint(`/users/${userId}`))
     .set("X-Authorization", authToken)
-    .then(response => {
-      UserStorage.methods.setUserData(response.body, userId);
+    .then((response) => {
+      if (!response.body.hasOwnProperty("email")) {
+        localStorage.removeItem("userId");
+        localStorage.removeItem("authToken");
+      }
       next();
     })
     .catch(() => {
       localStorage.removeItem("userId");
       localStorage.removeItem("authToken");
-      UserStorage.methods.logout();
       next();
     })
-
 }
 
 export async function isNotLoggedIn(to, from, next) {

@@ -163,7 +163,6 @@
 
 <script>
 
-  import UserStorage from "../../DataStorage/UserStorage";
   import {sendLogoutRequest} from "../../Utilities/loginPortal";
   import {endpoint} from "../../Utilities/endpoint";
   import {getUserDetails, getUserReviews, requestCategories, requestUserVenues} from "./ProfileService";
@@ -215,13 +214,13 @@
       logout: async function () {
         try {
           await sendLogoutRequest();
-          UserStorage.methods.logout();
           localStorage.removeItem("userId");
           localStorage.removeItem("authToken");
+          this.isLoggedIn = false;
         } catch (error) {
-          UserStorage.methods.logout();
           localStorage.removeItem("userId");
           localStorage.removeItem("authToken");
+          this.isLoggedIn = false;
         }
         this.$router.go(0);
       },

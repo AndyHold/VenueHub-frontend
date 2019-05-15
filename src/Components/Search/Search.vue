@@ -202,7 +202,6 @@
 
   import {getCategories, getVenues} from "./SearchService";
   import 'ol/ol.css';
-  import UserStorage from "../../DataStorage/UserStorage";
   import {sendLogoutRequest} from "../../Utilities/loginPortal";
   import NavigationMenu from "../App/NavigationMenu/NavigationMenu";
   import VenueCard from "./VenueCard/VenueCard";
@@ -327,22 +326,17 @@
         return false;
       },
 
-      isLoggedOn: function () {
-        return UserStorage.methods.isLoggedIn();
-      },
-
       logout: async function () {
         try {
           await sendLogoutRequest();
-          UserStorage.methods.logout();
           localStorage.removeItem("userId");
           localStorage.removeItem("authToken");
+          this.isLoggedIn = false;
         } catch (error) {
-          UserStorage.methods.logout();
           localStorage.removeItem("userId");
           localStorage.removeItem("authToken");
+          this.isLoggedIn = false;
         }
-        this.$router.go(0);
       },
 
       getPageRange: function(btn) {
@@ -392,7 +386,6 @@
             return pageRange + this.numberOfResults;
           }
         } else if (this.numberOfResults - this.startIndex > 0) {
-          console.log("here");
           pageRange += (this.startIndex + (btn - 4) * 10 + 1) + " - ";
           if (this.numberOfResults >= this.startIndex + (btn - 3) * 10 + 1) {
             return pageRange + (this.startIndex + (btn - 3) * 10);

@@ -45,7 +45,8 @@
                   :src="getVenuePhotoEndpoint(currentPhoto)"
                   :lazy-src="getVenuePhotoEndpoint(currentPhoto)"
                   aspect-ratio="2"
-                  class="grey lighten-2"
+                  class="grey darken-4"
+                  contain
                 >
                   <template v-slot:placeholder>
                     <v-layout

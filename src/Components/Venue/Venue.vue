@@ -245,9 +245,8 @@
                 <h3 class="font-weight-regular">
                   Description
                 </h3>
-                <v-expansion-panel class="card-background">
-                  <v-expansion-panel-content class="card-background">
-                  <!-- TODO: Make this look good -->
+                <v-expansion-panel>
+                  <v-expansion-panel-content style="background-color: #CFD8DC">
                     <template v-slot:header>
                       <p>
                         {{ venue.shortDescription }}
@@ -1403,7 +1402,6 @@
             color: "red",
             showSnackbar: true
           });
-          // Could not load reviews
         }
       },
 
@@ -1430,7 +1428,6 @@
             color: "red",
             showSnackbar: true
           });
-          // Could not get venue ratings
         }
       }
 
@@ -1458,7 +1455,7 @@
   }
 
   .card-background {
-    background-color: $lighter-secondary;
+    background-color: orange;
   }
 
   #venue {
