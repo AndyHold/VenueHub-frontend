@@ -351,22 +351,12 @@
 
 <style lang="scss" scoped>
 
-  @import "../../../../Resources/StyleSheets/variables";
-
-  .v-card {
-    background-color: $lighter-secondary;
-  }
+  @import "../../../../Resources/StyleSheets/commonStyles";
 
   .upload-photo-btn {
     right: 30px;
     bottom: 30px;
     z-index: 1;
-  }
-
-  .title-text {
-    color: $lighter-secondary;
-    font-size: 23px;
-    justify-content: center;
   }
 
   .image-preview {

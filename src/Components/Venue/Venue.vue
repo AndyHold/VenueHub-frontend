@@ -1,6 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <div v-if="venue"
-    id="venue">
+    id="venue"
+    class="background-element">
 
     <!-- Title Bar -->
     <v-toolbar fixed color="primary" class="page-header" z-index="9999">
@@ -14,14 +15,13 @@
 
     <!-- Main photo and venue name -->
     <v-layout fluid justify-center list-grid class="main-container">
-      <v-flex xs4>
+      <v-flex xs12 sm10 md8 lg6 xl4>
         <v-card elevation="10" class="venue-card">
           <v-layout column list-grid>
 
             <!-- Photo -->
-            <v-flex xs4>
+            <v-flex>
               <v-card
-                class="card-background"
                 flat
               >
                 <v-flex>
@@ -58,24 +58,24 @@
 
     <!-- Venue details -->
     <v-layout fluid justify-center list-grid class="info-card">
-      <v-flex xs8>
+      <v-flex xs12 sm11 md10 lg9 xl8>
         <v-card elevation="10">
           <v-card-text>
 
             <v-layout row class="info-section">
 
               <!-- Left side -->
-              <v-flex xs6>
+              <v-flex xs12 md6 lg6>
 
                 <!-- City Row -->
                 <v-layout row>
-                  <v-flex xs4 class="left-column">
-                    <h3 class="font-weight-regular">
+                  <v-flex xs4>
+                    <h3 class="font-weight-regular left-column">
                       City
                     </h3>
                   </v-flex>
-                  <v-flex xs8 class="right-column">
-                    <h3 class="font-weight-regular">
+                  <v-flex xs8>
+                    <h3 class="font-weight-regular right-column">
                       {{ venue.city }}
                     </h3>
                   </v-flex>
@@ -83,8 +83,8 @@
 
                 <!-- Address Row -->
                 <v-layout row>
-                  <v-flex xs4 class="left-column">
-                    <h3 class="font-weight-regular">
+                  <v-flex xs4>
+                    <h3 class="font-weight-regular left-column">
                       Address
                     </h3>
                   </v-flex>
@@ -97,15 +97,15 @@
 
                 <!-- Category Row -->
                 <v-layout row>
-                  <v-flex xs4 class="left-column">
-                    <h3 class="font-weight-regular">
+                  <v-flex xs4>
+                    <h3 class="font-weight-regular left-column">
                       Category
                     </h3>
                   </v-flex>
-                  <v-flex xs8 class="right-column">
+                  <v-flex xs8>
                     <v-tooltip bottom>
                       <template v-slot:activator="{ on }">
-                        <h3 v-on="on" class="font-weight-regular">
+                        <h3 v-on="on" class="font-weight-regular right-column">
                           {{ venue.category.categoryName }}
                         </h3>
                       </template>
@@ -116,13 +116,13 @@
 
                 <!-- Date Row -->
                 <v-layout row>
-                  <v-flex xs4 class="left-column">
-                    <h3 class="font-weight-regular">
+                  <v-flex xs4>
+                    <h3 class="font-weight-regular left-column">
                       Date Added
                     </h3>
                   </v-flex>
-                  <v-flex xs8 class="right-column">
-                    <h3 class="font-weight-regular">
+                  <v-flex xs8>
+                    <h3 class="font-weight-regular right-column">
                       {{ getStartDate(venue.dateAdded) }}
                     </h3>
                   </v-flex>
@@ -131,8 +131,8 @@
                 <!-- Star Rating Row -->
                 <v-flex>
                   <v-layout row>
-                    <v-flex xs4 class="left-column">
-                      <h3 class="font-weight-regular">
+                    <v-flex xs4>
+                      <h3 class="font-weight-regular left-column">
                         Star Rating
                       </h3>
                     </v-flex>
@@ -146,6 +146,7 @@
                               length="5"
                               half-increments
                               readonly
+                              size="1.5vw"
                             ></v-rating>
                           </div>
                         </template>
@@ -159,8 +160,8 @@
                 <!-- Cost Rating Row -->
                 <v-flex>
                   <v-layout row>
-                    <v-flex xs4 class="left-column">
-                      <h3 class="font-weight-regular">
+                    <v-flex xs4>
+                      <h3 class="font-weight-regular left-column">
                         Cost Rating
                       </h3>
                     </v-flex>
@@ -173,6 +174,7 @@
                               v-model="venue.modeCostRating"
                               length="4"
                               readonly
+                              size="1.5vw"
                             ></v-rating>
                           </div>
                         </template>
@@ -186,7 +188,7 @@
               </v-flex>
 
               <!-- Right side -->
-              <v-flex xs6>
+              <v-flex xs12 md6 lg6>
 
                 <!-- Title Row -->
                 <v-flex xs12>
@@ -254,7 +256,7 @@
                     </template>
 
                     <v-card-text>
-                      <pre v-if="venue.longDescription" class="description-text">{{ venue.longDescription }}</pre>
+                      <pre v-if="venue.longDescription">{{ venue.longDescription }}</pre>
                       <p v-else>No further details available for this venue</p>
                     </v-card-text>
 
@@ -385,6 +387,7 @@
                           @focus="venueLongDescriptionErrors = []"
                           @blur="validateLongDescription"
                           :error-messages="venueLongDescriptionErrors"
+                          v-on:keydown.tab="tabPressed"
                           v-on:keyup="validateLongDescription"
                         ></v-textarea>
                       </v-flex>
@@ -622,7 +625,7 @@
                   >Review This Venue</v-btn>
                 </template>
 
-                <v-card class="card-background">
+                <v-card>
                   <v-card-title
                     class="headline primary title-text"
                     color="primary darken-1"
@@ -1073,6 +1076,14 @@
         this.editedVenue.longitude = this.venue.longitude;
       },
 
+      tabPressed: function(event) {
+        console.log();
+        let cursorIndex = event.target.selectionStart;
+        this.editedVenue.longDescription = this.editedVenue.longDescription.slice(0, cursorIndex) + '\t' +
+          this.editedVenue.longDescription.slice(cursorIndex);
+        event.preventDefault();
+      },
+
       validateVenueName: function () {
         if (this.editedVenue.venueName !== "") {
           this.venueNameErrors = [];
@@ -1131,7 +1142,7 @@
           this.venueLongDescriptionErrors.push("Long Description is required");
           this.validVenueLongDescription = false;
         } else if (!/^[a-z0-9 ,+=*/"':;.{}()%$&#@!?\n\t]*$/i.test(this.editedVenue.longDescription)) {
-          this.venueLongDescriptionErrors.push("Long Description uses invalid characters, please rephrase using only letter, numbers or the following: ,.+='\"(){}$%&#@!?");
+          this.venueLongDescriptionErrors.push("Long Description uses invalid characters, please rephrase using only letter, numbers, tabs or the following: ,.+='\"(){}$%&#@!?");
           this.validVenueLongDescription = false;
         } else if (this.editedVenue.longDescription.length > 2048) {
           this.venueLongDescriptionErrors.push("Long Description is too long. Only 2048 characters allowed, you have " + this.editedVenue.longDescription.length);
@@ -1225,6 +1236,7 @@
                 showSnackbar: true
               });
               this.getVenueDetails();
+              this.editVenueDialog = false;
             }
           } catch (error) {
             if ([400, 401, 403].includes(error.status)) {
@@ -1448,47 +1460,10 @@
 
 <style lang="scss" scoped>
 
-  @import "../../Resources/StyleSheets/variables";
+  @import "../../Resources/StyleSheets/commonStyles";
 
-  .v-card {
-    background-color: $lighter-secondary;
-  }
-
-  .card-background {
-    background-color: orange;
-  }
-
-  #venue {
+  .background-element {
     background-image: url("../../Resources/Images/background.jpg");
-    background-size: cover;
-    background-attachment: fixed;
-    width: 100%;
-    height: 100%;
-  }
-
-  .page-header {
-    height: 130px;
-  }
-
-  .main-container {
-    width: 100%;
-    padding: 150px 20px 20px;
-  }
-
-  .title-text {
-    color: $lighter-secondary;
-    font-size: 23px;
-    justify-content: center;
-  }
-
-  .page-title {
-    padding: 65px 0 0 130px;
-    -webkit-text-fill-color: $lighter-secondary;
-    font-size: 50px;
-  }
-
-  .logout-button {
-    margin: 65px 0 0;
   }
 
   .venue-card {
@@ -1558,13 +1533,13 @@
   }
 
   .left-column {
-    font-size: 18px;
+    font-size: 1.5vw;
     text-align: right;
     padding: 0 10px 0 0;
   }
 
   .right-column {
-    font-size: 18px;
+    font-size: 1.5vw;
     text-align: left;
     padding: 0 0 0 10px;
   }
@@ -1572,12 +1547,7 @@
   .address {
     margin: 0;
     padding: 0;
-    font-size: 16px;
-  }
-
-  .warning-header {
-    -webkit-text-fill-color: $error;
-    text-align: right;
+    font-size: 1.3vw;
   }
 
   .edit-venue-btn {
@@ -1586,31 +1556,18 @@
     z-index: 1;
   }
 
-  .description-text {
-    font-family: 'Roboto', sans-serif;
-    font-size: 14px;
-  }
-
-  .description-button {
-    margin-right: 60px;
-  }
-
   .upload-photo-btn {
-    right: 30px;
-    bottom: 30px;
+    right: 2.5em;
+    bottom: 2.5em;
     z-index: 1;
   }
 
   .description-column {
-    padding: 20px;
+    padding: 2em;
   }
 
   pre {
-    white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    padding: 0 0 0 2em;
   }
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div id="search">
+  <div id="search" class="background-element">
     <v-toolbar fixed color="primary" class="page-header" z-index="9999">
       <navigation-menu title="true"></navigation-menu>
       <v-toolbar-title class="page-title">Search Venues</v-toolbar-title>
@@ -10,169 +10,177 @@
     </v-toolbar>
 
     <v-layout fluid list-grid class="main-container">
-      <v-flex x1>
+      <v-flex sm12 md12 lg12>
 
-        <!-- Search Criteria Cards -->
+        <!-- Search Criteria Card -->
         <v-card
           elevation="10"
           class="search-criteria-card"
           >
-          <v-layout row wrap>
 
-            <!-- Title search text field -->
-            <v-flex xs4 d-flex class="input-padding">
-              <v-text-field
-                label="Search"
-                hint="Search for a venue by title"
-                v-model="queries.q"
-                :value="queries.q"
-                ></v-text-field>
-            </v-flex>
-            <!-- End of title search text field -->
+          <v-flex sm12 md12 lg12 row style="margin: 0 2em">
+            <v-flex column wrap sm12 md6 lg4>
 
-            <!-- City search text field -->
-            <v-flex xs4 d-flex class="input-padding">
-              <v-select
-                label="City"
-                hint="Search for a venue by city"
-                :items="cities"
-                v-model="queries.city"
-                :value="queries.city"
-                clearable
-              ></v-select>
-            </v-flex>
-            <!-- End of city search text field -->
+              <!-- Title search text field -->
+              <v-flex d-flex class="input-padding">
+                <v-text-field
+                  label="Search"
+                  hint="Search for a venue by title"
+                  v-model="queries.q"
+                  :value="queries.q"
+                  ></v-text-field>
+              </v-flex>
 
-            <!-- Star rating search slider -->
-            <v-flex xs4 d-flex>
-              <v-layout row wrap>
-                <v-flex xs1 d-flex>
-                  <v-checkbox
-                    v-model="queries.ratings.notUseStarRating"
-                    :value="queries.ratings.notUseStarRating"
-                    :true-value="false"
-                    :false-value="true"
-                  ></v-checkbox>
-                </v-flex>
-                <v-flex xs11 d-flex>
-                  <v-slider
-                    label="Minimum Star Rating"
-                    thumb-label="always"
-                    :tick-labels="[1, 2, 3, 4, 5]"
-                    min="1"
-                    max="5"
-                    :disabled="queries.ratings.notUseStarRating"
-                    v-model="queries.ratings.minStarRating"
-                    :value="queries.ratings.minStarRating"
-                  ></v-slider>
-                </v-flex>
-              </v-layout>
-            </v-flex>
-            <!-- End of star rating search slider -->
-
-          </v-layout>
-          <v-layout row wrap>
-
-            <!-- Category search selector -->
-            <v-flex xs4 d-flex class="input-padding">
-              <v-select
-                label="Categories"
-                hint="Search for a venue by category"
-                v-model="queries.categoryId"
-                :value="queries.categoryId"
-                :items="categories"
-                item-value="categoryId"
-                item-text="categoryName"
-                clearable
-              ></v-select>
-            </v-flex>
-            <!-- End of category search selector -->
-
-            <v-layout xs4 row wrap>
-
-              <!-- Sort by search selector -->
-              <v-flex xs10 d-flex class="input-padding">
+              <!-- Category search selector -->
+              <v-flex d-flex class="input-padding">
                 <v-select
-                  label="Sort By"
-                  hint="How to sort the venues"
-                  v-model="queries.sortBy"
-                  :value="queries.sortBy"
-                  :items="sortableFields"
-                  item-value="itemValue"
-                  item-text="itemText"
+                  label="Categories"
+                  hint="Search for a venue by category"
+                  v-model="queries.categoryId"
+                  :value="queries.categoryId"
+                  :items="categories"
+                  item-value="categoryId"
+                  item-text="categoryName"
                   clearable
                 ></v-select>
               </v-flex>
-              <!-- End of sort by search selector -->
 
-              <!-- Reversed checkbox -->
-              <v-flex xs2 d-flex class="input-padding">
-                <v-checkbox
-                  label="Reverse"
-                  v-model="queries.reverseSort"
-                  :value="queries.reverseSort"
-                ></v-checkbox>
+            </v-flex>
+
+            <v-flex column wrap sm12 md6 lg4>
+
+              <!-- City search text field -->
+              <v-flex d-flex class="input-padding">
+                <v-select
+                  label="City"
+                  hint="Search for a venue by city"
+                  :items="cities"
+                  v-model="queries.city"
+                  :value="queries.city"
+                  clearable
+                ></v-select>
               </v-flex>
-              <!-- End of reversed checkbox -->
 
-            </v-layout>
+              <!-- Sort By and Reversed -->
+              <v-layout row wrap class="input-padding">
 
-            <!-- Cost rating search slider -->
-            <v-flex xs4 d-flex>
-              <v-layout row wrap>
-                <v-flex xs1 d-flex>
+                <!-- Sort by search selector -->
+                <v-flex sm12 md8 lg9 d-flex class="input-padding">
+                  <v-select
+                    label="Sort By"
+                    hint="How to sort the venues"
+                    v-model="queries.sortBy"
+                    :value="queries.sortBy"
+                    :items="sortableFields"
+                    item-value="itemValue"
+                    item-text="itemText"
+                    clearable
+                  ></v-select>
+                </v-flex>
+
+                <!-- Reversed checkbox -->
+                <v-flex sm12 md4 lg3 d-flex class="input-padding">
                   <v-checkbox
-                    v-model="queries.ratings.notUseCostRating"
-                    :value="queries.ratings.notUseCostRating"
-                    :true-value="false"
-                    :false-value="true"
+                    class="v-checkbox"
+                    label="Reverse"
+                    v-model="queries.reverseSort"
+                    :value="queries.reverseSort"
                   ></v-checkbox>
                 </v-flex>
-                <v-flex xs11 d-flex>
-                  <v-slider
-                    label="Maximum Cost Rating"
-                    thumb-label="always"
-                    :tick-labels="[0, 1, 2, 3, 4]"
-                    min="0"
-                    max="4"
-                    :disabled="queries.ratings.notUseCostRating"
-                    v-model="queries.ratings.maxCostRating"
-                    :value="queries.ratings.maxCostRating"
-                  ></v-slider>
-                </v-flex>
-              </v-layout>
-            </v-flex>
-            <!-- End of cost rating search slider -->
 
-          </v-layout>
-          <v-layout row wrap>
+              </v-layout>
+
+            </v-flex>
+
+            <v-flex column wrap sm12 md6 lg4>
+
+              <!-- Star rating search slider -->
+              <v-flex d-flex>
+                <v-layout row wrap>
+                  <v-flex sm1 md1 lg1 d-flex>
+                    <v-spacer align="right">
+                      <v-checkbox
+                        class="v-checkbox"
+                        v-model="queries.ratings.notUseStarRating"
+                        :value="queries.ratings.notUseStarRating"
+                        :true-value="false"
+                        :false-value="true"
+                      ></v-checkbox>
+                    </v-spacer>
+                  </v-flex>
+                  <v-flex sm11 md11 lg11 d-flex>
+                    <v-slider
+                      label="Minimum Star Rating"
+                      thumb-label="always"
+                      :tick-labels="[1, 2, 3, 4, 5]"
+                      min="1"
+                      max="5"
+                      :disabled="queries.ratings.notUseStarRating"
+                      v-model="queries.ratings.minStarRating"
+                      :value="queries.ratings.minStarRating"
+                    ></v-slider>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <!-- Cost rating search slider -->
+              <v-flex d-flex>
+                <v-layout row wrap>
+                  <v-flex xs1 d-flex>
+                    <v-checkbox
+                      class="v-checkbox"
+                      v-model="queries.ratings.notUseCostRating"
+                      :value="queries.ratings.notUseCostRating"
+                      :true-value="false"
+                      :false-value="true"
+                    ></v-checkbox>
+                  </v-flex>
+                  <v-flex xs11 d-flex>
+                    <v-slider
+                      label="Maximum Cost Rating"
+                      thumb-label="always"
+                      :tick-labels="[0, 1, 2, 3, 4]"
+                      min="0"
+                      max="4"
+                      :disabled="queries.ratings.notUseCostRating"
+                      v-model="queries.ratings.maxCostRating"
+                      :value="queries.ratings.maxCostRating"
+                    ></v-slider>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+
+            </v-flex>
+          </v-flex>
+
+          <v-layout x1 row wrap>
             <v-spacer></v-spacer>
             <v-btn flat :disabled="canMove(0)" v-on:click="startIndex -= 10">
               <v-icon>arrow_back</v-icon>
             </v-btn>
             <v-btn flat v-if="numberOfResults >= 0" v-on:click="movePage(0)" :disabled="isCurrentPage(0)">
               <b>
-              {{ getPageRange(0) }}
+                {{ getPageRange(0) }}
               </b>
             </v-btn>
             <v-btn flat v-if="numberOfResults > 10" v-on:click="movePage(1)" :disabled="isCurrentPage(1)">
               <b>
-              {{ getPageRange(1) }}
+                {{ getPageRange(1) }}
               </b>
             </v-btn>
             <v-btn flat v-if="numberOfResults > 20" v-on:click="movePage(2)" :disabled="isCurrentPage(2)">
               <b>
-              {{ getPageRange(2) }}
+                {{ getPageRange(2) }}
               </b>
             </v-btn>
             <v-btn flat v-if="numberOfResults > 30" v-on:click="movePage(3)" :disabled="isCurrentPage(3)">
               <b>
-              {{ getPageRange(3) }}
+                {{ getPageRange(3) }}
               </b>
             </v-btn>
             <v-btn flat v-if="numberOfResults > 40" v-on:click="movePage(4)" :disabled="isCurrentPage(4)">
               <b>
-              {{ getPageRange(4) }}
+                {{ getPageRange(4) }}
               </b>
             </v-btn>
             <v-btn flat :disabled="canMove(1)" v-on:click="startIndex += 10">
@@ -194,6 +202,20 @@
 
       </v-flex>
     </v-layout>
+
+    <v-snackbar
+      v-model="snackBar.showSnackbar"
+      :bottom="true"
+      :right="true"
+      :timeout="3000"
+    >
+      {{ snackBar.text }}
+      <v-btn
+        :color="snackBar.color"
+        flat
+        @click="snackBar.showSnackbar = false"
+      >Dismiss</v-btn>
+    </v-snackbar>
 
   </div>
 </template>
@@ -232,10 +254,8 @@
           myLatitude: null,
           myLongitude: null
         },
-
         startIndex: 0,
         count: 10,
-
         sortableFields: [
           {
             itemValue: "STAR_RATING",
@@ -246,14 +266,16 @@
             itemText: "Cost Rating",
           }
         ],
-
         venues: [],
         categories: [],
         cities: [],
-
         numberOfResults: 0,
-
-        isLoggedIn: false
+        isLoggedIn: false,
+        snackBar: {
+          showSnackbar: false,
+          text: "",
+          color: ""
+        }
       }
     },
 
@@ -282,6 +304,10 @@
     },
 
     methods: {
+
+      displayMessage: function(snackBar) {
+        this.snackBar = snackBar;
+      },
 
       onQueriesChanged: async function () {
         this.startIndex = 0;
@@ -441,17 +467,24 @@
       },
 
       getVenuesWithQueries: async function () {
-        let results = await getVenues(this.queries, null, null);
-        this.numberOfResults = results.length;
-        this.venues = await getVenues(this.queries, this.startIndex, this.count);
-        for (let i = 0; i < this.venues.length; i++) {
-          if (this.venues[i].meanStarRating === null) {
-            this.venues[i].meanStarRating = 3;
+        try {
+          let results = await getVenues(this.queries, null, null);
+          this.numberOfResults = results.length;
+          this.venues = await getVenues(this.queries, this.startIndex, this.count);
+          for (let i = 0; i < this.venues.length; i++) {
+            if (this.venues[i].meanStarRating === null) {
+              this.venues[i].meanStarRating = 3;
+            }
+            if (this.venues[i].modeCostRating === null) {
+              this.venues[i].modeCostRating = 0;
+            }
           }
-          if (this.venues[i].modeCostRating === null) {
-            this.venues[i].modeCostRating = 0;
-          }
-
+        } catch (error) {
+          this.displayMessage({
+            showSnackbar: true,
+            text: "Error: " + error.message,
+            color: "red"
+          })
         }
       }
 
@@ -475,37 +508,10 @@
 
 <style lang="scss" scoped>
 
-  @import "../../Resources/StyleSheets/variables";
+  @import "../../Resources/StyleSheets/commonStyles";
 
-  .v-card {
-    background-color: $lighter-secondary;
-  }
-
-  #search {
+  .background-element {
     background-image: url("../../Resources/Images/background.jpg");
-    background-size: cover;
-    background-attachment: fixed;
-    width: 100%;
-    height: 100%;
-  }
-
-  .page-header {
-    height: 130px;
-  }
-
-  .main-container {
-    width: 100%;
-    padding: 150px 20px 20px;
-  }
-
-  .page-title {
-    padding: 65px 0 0 130px;
-    -webkit-text-fill-color: $lighter-secondary;
-    font-size: 50px;
-  }
-
-  .logout-button {
-    margin: 65px 0 0;
   }
 
   .search-criteria-card {
@@ -514,7 +520,11 @@
   }
 
   .input-padding {
-    padding-right: 10px;
+    padding: 0 1em;
+  }
+
+  .v-checkbox {
+    padding: 0 1em;
   }
 
 </style>

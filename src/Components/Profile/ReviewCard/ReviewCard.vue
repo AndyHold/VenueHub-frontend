@@ -8,7 +8,7 @@
         <v-layout row>
 
           <!-- Venue Image Panel -->
-          <v-flex xs4 class="details-section">
+          <v-flex lg4 md6 sm12 class="details-section">
 
             <!-- Title Row -->
             <v-flex xs12>
@@ -44,22 +44,23 @@
           </v-flex>
 
           <!-- Venue Details Panel -->
-          <v-flex xs4 row class="details-section">
-            <v-divider vertical></v-divider>
+          <v-flex lg4 md6 sm12 row class="details-section">
             <v-flex class="details-section">
-              <h3>
-                Venue Details
-              </h3>
+              <v-flex xs9 sm9 md12 offset-md0 offset-sm3 offset-xs3>
+                <h3>
+                  Venue Details
+                </h3>
+              </v-flex>
 
               <!-- City Row -->
               <v-layout row  class="details-section">
-                <v-flex xs4>
-                  <h4 class="font-weight-regular">
+                <v-flex xs3 md4 sm3 offset-md0 offset-sm3 offset-xs3>
+                  <h4 class="font-weight-regular info-font">
                     City
                   </h4>
                 </v-flex>
-                <v-flex xs8>
-                  <h4 class="font-weight-regular">
+                <v-flex md8 sm6 xs6>
+                  <h4 class="font-weight-regular info-font">
                     {{ review.venue.city }}
                   </h4>
                 </v-flex>
@@ -67,13 +68,13 @@
 
               <!-- Category Row -->
               <v-layout row class="details-section">
-                <v-flex xs4>
-                  <h4 class="font-weight-regular">
+                <v-flex xs3 md4 sm3 offset-md0 offset-sm3 offset-xs3>
+                  <h4 class="font-weight-regular info-font">
                     Category
                   </h4>
                 </v-flex>
-                <v-flex xs8>
-                  <h4 class="font-weight-regular">
+                <v-flex md8 sm6 xs6>
+                  <h4 class="font-weight-regular info-font">
                     {{ review.venue.categoryName }}
                   </h4>
                 </v-flex>
@@ -82,13 +83,13 @@
               <!-- Description Row -->
               <v-flex class="details-section">
                 <v-layout row>
-                  <v-flex xs4>
-                    <h4 class="font-weight-regular">
+                  <v-flex xs3 md4 sm3 offset-md0 offset-sm3 offset-xs3>
+                    <h4 class="font-weight-regular info-font">
                       Description
                     </h4>
                   </v-flex>
-                  <v-flex xs8>
-                    <p>
+                  <v-flex md8 sm6 xs6>
+                    <p class="description-text">
                       {{ review.venue.shortDescription }}
                     </p>
                   </v-flex>
@@ -108,25 +109,26 @@
               </v-layout>
             </v-flex>
             </v-flex>
-            <v-divider vertical></v-divider>
           </v-flex>
 
           <!-- Review Details Panel -->
-          <v-flex xs4 class="details-section">
-            <h3>
-              Comments
-            </h3>
-            <pre class="description-text photo-description-column">{{ review.reviewBody }}</pre>
+          <v-flex lg4 md6 sm12 class="details-section">
+            <v-flex xs9 sm9 md12 offset-md0 offset-sm3 offset-xs3>
+              <h3>
+                Comments
+              </h3>
+              <pre class="description-text photo-description-column">{{ review.reviewBody }}</pre>
+            </v-flex>
 
             <!-- Date Row -->
             <v-layout row class="details-section">
-              <v-flex xs4>
-                <h4 class="font-weight-regular">
+              <v-flex xs3 md4 sm3 offset-md0 offset-sm3 offset-xs3>
+                <h4 class="font-weight-regular info-font">
                   Date Reviewed
                 </h4>
               </v-flex>
-              <v-flex xs8>
-                <h4 class="font-weight-regular">
+              <v-flex md8 sm6 xs6>
+                <h4 class="font-weight-regular info-font">
                   {{ getStartDate(review.timePosted) }}
                 </h4>
               </v-flex>
@@ -134,13 +136,13 @@
 
             <!-- Time Row -->
             <v-layout row class="details-section">
-              <v-flex xs4>
-                <h4 class="font-weight-regular">
+              <v-flex xs3 md4 sm3 offset-md0 offset-sm3 offset-xs3>
+                <h4 class="font-weight-regular info-font">
                   Time Reviewed
                 </h4>
               </v-flex>
-              <v-flex xs8>
-                <h4 class="font-weight-regular">
+              <v-flex md8 sm6 xs6>
+                <h4 class="font-weight-regular info-font">
                   {{ getStartTime(review.timePosted) }}
                 </h4>
               </v-flex>
@@ -149,12 +151,12 @@
             <!-- Star Rating Row -->
             <v-flex class="details-section">
               <v-layout row>
-                <v-flex xs4>
-                  <h4 class="font-weight-regular">
+                <v-flex xs3 md4 sm3 offset-md0 offset-sm3 offset-xs3>
+                  <h4 class="font-weight-regular info-font">
                     Star Rating
                   </h4>
                 </v-flex>
-                <v-flex xs8>
+                <v-flex md8 sm6 xs6>
                   <v-tooltip bottom>
 
                     <template v-slot:activator="{ on }">
@@ -163,6 +165,7 @@
                           v-model="review.starRating"
                           length="5"
                           readonly
+                          size="1.5vw"
                         ></v-rating>
                       </div>
                     </template>
@@ -176,12 +179,12 @@
             <!-- Cost Rating Row -->
             <v-flex class="details-section">
               <v-layout row>
-                <v-flex xs4>
-                  <h4 class="font-weight-regular">
+                <v-flex xs3 md4 sm3 offset-md0 offset-sm3 offset-xs3>
+                  <h4 class="font-weight-regular info-font">
                     Cost Rating
                   </h4>
                 </v-flex>
-                <v-flex xs8>
+                <v-flex md8 sm6 xs6>
                   <v-tooltip bottom>
 
                     <template v-slot:activator="{ on }">
@@ -190,6 +193,7 @@
                           v-model="review.costRating"
                           length="4"
                           readonly
+                          size="1.5vw"
                         ></v-rating>
                       </div>
                     </template>
@@ -301,14 +305,10 @@
 
 <style lang="scss" scoped>
 
-  @import "../../../Resources/StyleSheets/variables";
-
-  .v-card {
-    background-color: $lighter-secondary;
-  }
+  @import "../../../Resources/StyleSheets/commonStyles";
 
   .review-panel {
-    margin: 10px 20px;
+    padding: 10px 20px;
   }
 
   .venue-photo {
@@ -321,19 +321,15 @@
 
   .description-text {
     font-family: 'Roboto', sans-serif;
-    font-size: 14px;
+    font-size: 1.5vw;
   }
 
   .details-section {
     padding: 0 20px;
   }
 
-  pre {
-    white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  .info-font {
+    font-size: 1.5vw;
   }
 
 </style>

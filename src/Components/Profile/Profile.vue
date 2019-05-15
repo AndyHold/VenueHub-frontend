@@ -1,5 +1,6 @@
 <template>
-  <div id="profile">
+  <div id="profile" class="background-element">
+
     <!-- Title Bar -->
     <v-toolbar fixed color="primary" class="page-header" z-index="9999">
       <navigation-menu title="true"></navigation-menu>
@@ -58,7 +59,6 @@
 
           <v-card-actions>
             <v-spacer align="right">
-
               <add-venue-dialog
                 v-if="owner"
                 :categories="categories"
@@ -102,7 +102,7 @@
       <v-flex xs12>
         <v-card
           elevation="10"
-          class="card-background reviews-card"
+          class="reviews-card"
         >
 
           <v-card-title
@@ -309,43 +309,10 @@
 
 <style lang="scss" scoped>
 
-  @import "../../Resources/StyleSheets/variables";
+  @import "../../Resources/StyleSheets/commonStyles";
 
-  .v-card {
-    background-color: $lighter-secondary;
-  }
-
-  #profile {
+  .background-element {
     background-image: url("../../Resources/Images/background.jpg");
-    background-size: cover;
-    background-attachment: fixed;
-    width: 100%;
-    height: 100%;
-  }
-
-  .page-header {
-    height: 130px;
-  }
-
-  .main-container {
-    width: 100%;
-    padding: 150px 20px 20px;
-  }
-
-  .title-text {
-    color: $lighter-secondary;
-    font-size: 23px;
-    justify-content: center;
-  }
-
-  .page-title {
-    padding: 65px 0 0 130px;
-    -webkit-text-fill-color: $lighter-secondary;
-    font-size: 50px;
-  }
-
-  .logout-button {
-    margin: 65px 0 0;
   }
 
   .venues-card {

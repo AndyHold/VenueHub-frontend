@@ -14,6 +14,11 @@ export async function getVenues(queries, startIndex, count) {
   queries["count"] = count;
   let response = await superAgent.get(endpoint("/venues" + await parseQueries(queries)));
 
+  if (queries.myLatitude != null && queries.myLongitude != null) {
+    for (let i = 0; i < response.body.length; i++) {
+      response.body[i].distance = response.body[i].distance.toFixed(3);
+    }
+  }
   return response.body;
 }
 

@@ -45,13 +45,13 @@
 
                     <!-- City Row -->
                     <v-layout row>
-                      <v-flex xs4 class="left-column">
-                        <h3 class="font-weight-regular">
+                      <v-flex xs4>
+                        <h3 class="font-weight-regular left-column">
                           City
                         </h3>
                       </v-flex>
-                      <v-flex xs8 class="right-column">
-                        <h3 class="font-weight-regular">
+                      <v-flex xs8>
+                        <h3 class="font-weight-regular right-column">
                           {{ venue.city }}
                         </h3>
                       </v-flex>
@@ -59,13 +59,13 @@
 
                     <!-- Category Row -->
                     <v-layout row>
-                      <v-flex xs4 class="left-column">
-                        <h3 class="font-weight-regular">
+                      <v-flex xs4>
+                        <h3 class="font-weight-regular left-column">
                           Category
                         </h3>
                       </v-flex>
-                      <v-flex xs8 class="right-column">
-                        <h3 class="font-weight-regular">
+                      <v-flex xs8>
+                        <h3 class="font-weight-regular right-column">
                           {{ getCategoryName(venue.categoryId) }}
                         </h3>
                       </v-flex>
@@ -74,13 +74,13 @@
                     <!-- Description Row -->
                     <v-flex>
                       <v-layout row>
-                        <v-flex xs4 class="left-column">
-                          <h3 class="font-weight-regular">
+                        <v-flex xs4>
+                          <h3 class="font-weight-regular left-column">
                             Description
                           </h3>
                         </v-flex>
-                        <v-flex xs8 class="right-column">
-                          <h3 class="font-weight-regular">
+                        <v-flex xs8>
+                          <h3 class="font-weight-regular right-column">
                             {{ venue.shortDescription }}
                           </h3>
                         </v-flex>
@@ -90,8 +90,8 @@
                     <!-- Star Rating Row -->
                     <v-flex>
                       <v-layout row>
-                        <v-flex xs4 class="left-column">
-                          <h3 class="font-weight-regular">
+                        <v-flex xs4>
+                          <h3 class="font-weight-regular left-column">
                             Star Rating
                           </h3>
                         </v-flex>
@@ -118,8 +118,8 @@
                     <!-- Cost Rating Row -->
                     <v-flex>
                       <v-layout row>
-                        <v-flex xs4 class="left-column">
-                          <h3 class="font-weight-regular">
+                        <v-flex xs4>
+                          <h3 class="font-weight-regular left-column">
                             Cost Rating
                           </h3>
                         </v-flex>
@@ -144,13 +144,13 @@
 
                     <!-- Distance Row -->
                     <v-layout v-if="venue.distance" row>
-                      <v-flex xs4 class="left-column">
-                        <h3 class="font-weight-regular">
+                      <v-flex xs4>
+                        <h3 class="font-weight-regular left-column">
                           Distance
                         </h3>
                       </v-flex>
-                      <v-flex xs8 class="right-column">
-                        <h3 class="font-weight-regular">
+                      <v-flex xs8>
+                        <h3 class="font-weight-regular right-column">
                           {{ venue.distance }} km
                         </h3>
                       </v-flex>
@@ -166,16 +166,14 @@
           <!-- Location Card -->
           <v-flex xs2 d-flex>
             <v-card>
-              <v-layout column justify-space-between fill-height>
-                <v-flex d-flex fluid>
-                  <v-responsive d-flex fill-height>
-                    <div
-                      :id="getMapPanelIdFromVenueId(venue.venueId)"
-                      class="map-panel"
-                    ></div>
-                  </v-responsive>
+              <v-responsive>
+                <v-flex d-flex>
+                  <div
+                    :id="getMapPanelIdFromVenueId(venue.venueId)"
+                    class="map-panel"
+                  ></div>
                 </v-flex>
-              </v-layout>
+              </v-responsive>
             </v-card>
           </v-flex>
           <!-- End of location card -->
@@ -315,16 +313,10 @@
 
 <style lang="scss" scoped>
 
-  @import "../../../Resources/StyleSheets/variables";
-
-  .v-card {
-    background-color: $lighter-secondary;
-  }
+  @import "../../../Resources/StyleSheets/commonStyles";
 
   .title-text {
-    color: $lighter-secondary;
-    font-size: 20px;
-    justify-content: center;
+    font-size: 20px !important;
   }
 
   .venue-card {
@@ -340,19 +332,19 @@
   }
 
   .left-column {
-    font-size: 18px;
+    font-size: 1.5vw;
     text-align: right;
     padding: 0 10px 0 0;
   }
 
   .right-column {
-    font-size: 18px;
+    font-size: 1.5vw;
     text-align: left;
     padding: 0 0 0 10px;
   }
 
   .map-panel {
-    height: 100%;
+    height: 300px;
     padding: 20px;
   }
 

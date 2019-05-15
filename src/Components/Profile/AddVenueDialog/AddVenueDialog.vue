@@ -547,22 +547,7 @@
 
 <style lang="scss" scoped>
 
-  @import "../../../Resources/StyleSheets/variables";
-
-  .v-card {
-    background-color: $lighter-secondary;
-  }
-
-  .title-text {
-    color: $lighter-secondary;
-    font-size: 23px;
-    justify-content: center;
-  }
-
-  .warning-header {
-    -webkit-text-fill-color: $error;
-    text-align: right;
-  }
+  @import "../../../Resources/StyleSheets/commonStyles";
 
   .no-bottom-padding-or-margin {
     margin-bottom: 0;

@@ -5,7 +5,7 @@
       <v-flex
         v-for="photo in photos"
         :key="photo.photoFilename"
-        xs3
+        xl2 lg3 md4 sm6 xs12
       >
         <v-card flat tile class="d-flex">
           <v-img
@@ -69,7 +69,7 @@
                       Description
                     </h4>
 
-                    <pre class="description-text photo-description-column">  {{ currentPhoto.photoDescription }}</pre>
+                    <pre class="photo-description-column">  {{ currentPhoto.photoDescription }}</pre>
 
                     <v-layout align-end>
                       <v-spacer align="center">
@@ -237,11 +237,7 @@
 
 <style lang="scss" scoped>
 
-  @import "../../../Resources/StyleSheets/variables";
-
-  .v-card {
-    background-color: $lighter-secondary;
-  }
+  @import "../../../Resources/StyleSheets/commonStyles";
 
   .photo-description-column {
     padding: 20px;
@@ -251,21 +247,8 @@
     padding: 20px;
   }
 
-  .description-text {
-    font-family: 'Roboto', sans-serif;
-    font-size: 14px;
-  }
-
   .photo :hover {
     cursor: pointer;
-  }
-
-  pre {
-    white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
   }
 
 </style>

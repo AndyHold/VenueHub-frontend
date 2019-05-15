@@ -65,24 +65,13 @@
 
 <style lang="scss" scoped>
 
-  @import "../../../Resources/StyleSheets/variables";
+  @import "../../../Resources/StyleSheets/commonStyles";
 
-  .v-card {
-    background-color: $lighter-secondary;
-  }
-
-  h2{
+  h2 {
     color: $lighter-secondary;
   }
 
   pre {
-    white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
-    font-family: 'Roboto', sans-serif;
-    font-size: 14px;
     text-align: center;
   }
 

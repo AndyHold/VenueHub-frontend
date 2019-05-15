@@ -6,7 +6,6 @@
         <!-- Photo and upload button -->
         <v-flex xs4>
           <v-card
-            class="card-background"
             flat
           >
             <v-flex>
@@ -170,11 +169,7 @@
 
 <style lang="scss" scoped>
 
-  @import "../../../Resources/StyleSheets/variables";
-
-  .v-card {
-    background-color: $lighter-secondary;
-  }
+  @import "../../../Resources/StyleSheets/commonStyles";
 
   .profile-card {
     background-color: $lighter-secondary;
@@ -185,13 +180,8 @@
     border-radius: 25em;
   }
 
-  .title-text {
-    color: $lighter-secondary;
-    font-size: 23px;
-    justify-content: center;
-  }
-
   .first-name {
+    font-size: 1vw;
     padding: 20px 10px 0 0;
     -webkit-text-fill-color: $primary;
   }

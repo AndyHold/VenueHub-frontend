@@ -6,26 +6,25 @@ export async function isLoggedInOrOut(to, from, next) {
   const authToken = localStorage.getItem("authToken");
 
   // If the userId or authToken do not exist, continue
-  if (!userId && !authToken) {
+  if (!userId || !authToken) {
     next();
     return;
   }
 
-  // Request the user details and update them in the UserStorage
-  superAgent.get(endpoint(`/users/${userId}`))
-    .set("X-Authorization", authToken)
-    .then((response) => {
-      if (!response.body.hasOwnProperty("email")) {
-        localStorage.removeItem("userId");
-        localStorage.removeItem("authToken");
-      }
-      next();
-    })
-    .catch(() => {
+  try {
+    // Request the user details and update them in the UserStorage
+    let response = await superAgent.get(endpoint(`/users/${userId}`))
+      .set("X-Authorization", authToken);
+    if (!response.body.hasOwnProperty("email")) {
       localStorage.removeItem("userId");
       localStorage.removeItem("authToken");
-      next();
-    })
+    }
+    next();
+  } catch (error) {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("authToken");
+    next();
+  }
 }
 
 export async function isNotLoggedIn(to, from, next) {

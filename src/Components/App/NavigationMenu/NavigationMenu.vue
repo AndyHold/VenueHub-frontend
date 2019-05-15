@@ -72,7 +72,6 @@
     methods: {
       goToURL: function (URL) {
         this.$router.push(URL);
-        this.$router.go(0);
       }
     }
   }

@@ -333,22 +333,12 @@
 
 <style lang="scss" scoped>
 
-  @import "../../../../Resources/StyleSheets/variables";
-
-  .v-card {
-    background-color: $lighter-secondary;
-  }
+  @import "../../../../Resources/StyleSheets/commonStyles";
 
   .edit-profile-btn {
     right: 15px;
     bottom: 15px;
     z-index: 1;
-  }
-
-  .title-text {
-    color: $lighter-secondary;
-    font-size: 23px;
-    justify-content: center;
   }
 
   .information {

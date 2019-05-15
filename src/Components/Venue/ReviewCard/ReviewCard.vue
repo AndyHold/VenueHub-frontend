@@ -8,18 +8,18 @@
         <v-layout row>
 
           <!-- Author Panel -->
-          <v-flex xs4>
+          <v-flex xs12 md4>
 
             <!-- Title Row -->
-            <v-flex xs12>
+            <v-flex x1>
               <h3 class="font-weight-regular" align="center">
                 Author
               </h3>
             </v-flex>
 
-            <!-- Image Row -->
-            <v-layout row>
-              <v-flex xs12>
+            <!-- Image -->
+            <v-layout>
+              <v-flex x1>
                 <v-spacer align="center">
                   <v-img
                     v-if="review.authorPhoto"
@@ -45,8 +45,8 @@
             </v-layout>
 
             <!-- Username Row -->
-            <v-layout row>
-              <v-flex xs12>
+            <v-layout>
+              <v-flex x1>
                 <h4 class="font-weight-regular" align="center">
                   {{ review.reviewAuthor.username }}
                 </h4>
@@ -56,49 +56,48 @@
           </v-flex>
 
           <!-- ReviewCard Body Panel -->
-          <v-flex xs8>
+          <v-flex xs12 md8 class="review-body">
             <h3>
               Comments
             </h3>
-            <pre class="description-text photo-description-column">{{ review.reviewBody }}</pre>
+            <pre class="photo-description-column">{{ review.reviewBody }}</pre>
 
             <!-- Date Row -->
-            <v-layout row>
-              <v-flex xs4>
-                <h4 class="font-weight-regular">
+            <v-layout row class="review-body">
+              <v-flex xs3 md4 offset-xs3 offset-md0>
+                <h4 class="font-weight-regular info-font">
                   Date Reviewed
                 </h4>
               </v-flex>
-              <v-flex xs8>
-                <h4 class="font-weight-regular">
+              <v-flex xs6 md8>
+                <h4 class="font-weight-regular info-font">
                   {{ getStartDate(review.timePosted) }}
                 </h4>
               </v-flex>
             </v-layout>
 
             <!-- Time Row -->
-            <v-layout row>
-              <v-flex xs4>
-                <h4 class="font-weight-regular">
+            <v-layout row class="review-body">
+              <v-flex xs3 md4 offset-xs3 offset-md0>
+                <h4 class="font-weight-regular info-font">
                   Time Reviewed
                 </h4>
               </v-flex>
-              <v-flex xs8>
-                <h4 class="font-weight-regular">
+              <v-flex xs6 md8>
+                <h4 class="font-weight-regular info-font">
                   {{ getStartTime(review.timePosted) }}
                 </h4>
               </v-flex>
             </v-layout>
 
             <!-- Star Rating Row -->
-            <v-flex>
-              <v-layout row>
-                <v-flex xs4>
-                  <h4 class="font-weight-regular">
+            <v-layout row class="review-body">
+                <v-flex xs3 md4 offset-xs3 offset-md0>
+                  <h4 class="font-weight-regular info-font">
                     Star Rating
                   </h4>
                 </v-flex>
-                <v-flex xs8>
+                <v-flex xs6 md8>
                   <v-tooltip bottom>
 
                     <template v-slot:activator="{ on }">
@@ -107,6 +106,7 @@
                           v-model="review.starRating"
                           length="5"
                           readonly
+                          size="1.5vw"
                         ></v-rating>
                       </div>
                     </template>
@@ -115,17 +115,15 @@
                   </v-tooltip>
                 </v-flex>
               </v-layout>
-            </v-flex>
 
             <!-- Cost Rating Row -->
-            <v-flex>
-              <v-layout row>
-                <v-flex xs4>
-                  <h4 class="font-weight-regular">
+            <v-layout row class="review-body">
+                <v-flex xs3 md4 offset-xs3 offset-md0>
+                  <h4 class="font-weight-regular info-font">
                     Cost Rating
                   </h4>
                 </v-flex>
-                <v-flex xs8>
+                <v-flex xs6 md8>
                   <v-tooltip bottom>
 
                     <template v-slot:activator="{ on }">
@@ -134,6 +132,7 @@
                           v-model="review.costRating"
                           length="4"
                           readonly
+                          size="1.5vw"
                         ></v-rating>
                       </div>
                     </template>
@@ -142,7 +141,7 @@
                   </v-tooltip>
                 </v-flex>
               </v-layout>
-            </v-flex>
+
           </v-flex>
 
         </v-layout>
@@ -215,11 +214,7 @@
 
 <style lang="scss" scoped>
 
-  @import "../../../Resources/StyleSheets/variables";
-
-  .v-card {
-    background-color: $lighter-secondary;
-  }
+  @import "../../../Resources/StyleSheets/commonStyles";
 
   .review-panel {
     margin: 10px 20px;
@@ -237,17 +232,12 @@
     padding: 20px;
   }
 
-  .description-text {
-    font-family: 'Roboto', sans-serif;
-    font-size: 14px;
+  .review-body {
+    padding: 0 2em;
   }
 
-  pre {
-    white-space: pre-wrap;       /* Since CSS 2.1 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  .info-font {
+    font-size: 1.5vw;
   }
 
 </style>

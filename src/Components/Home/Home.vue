@@ -1,5 +1,5 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <div id="home">
+    <div id="home" class="background-element">
       <div>
         <navigation-menu></navigation-menu>
         <h2>Welcome to</h2>
@@ -466,22 +466,16 @@
 
 <style lang="scss" scoped>
 
-  @import "../../Resources/StyleSheets/variables";
+  @import "../../Resources/StyleSheets/commonStyles";
 
-  .v-card {
-    background-color: $lighter-secondary;
+  .background-element {
+    background-image: url("../../Resources/Images/background.jpg");
   }
 
   #home {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url("../../Resources/Images/background.jpg");
-    background-size: cover;
-    background-attachment: fixed;
-    box-shadow: inset 0 0 0 1000px rgba(0,0,0,.4);
-    width: 100%;
-    height: 100%;
   }
 
   h1 {
@@ -498,16 +492,11 @@
   }
 
   .home-button {
-    margin: 10px
+    margin: 1em;
   }
 
   .title-text {
     color: $lighter-secondary;
-  }
-
-  .warning-header {
-    -webkit-text-fill-color: $error;
-    text-align: right;
   }
 
 </style>
