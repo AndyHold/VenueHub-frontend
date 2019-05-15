@@ -1,8 +1,16 @@
-# assignment-2
+# SENG365 Assignment 2
 
-> assignment-2-seng-365
+## Venue Hub
 
-## Build Setup
+A **Front End Web Application** Built using Vue.js and Vuetify.js
+
+- Author: Andy Holden
+- Software Engineering Student - 2nd Professional Year
+- University of Canterbury
+- SN: 97242455
+- Email: ash102@uclive.ac.nz
+
+### Build Setup
 
 ``` bash
 # install dependencies
