@@ -327,6 +327,9 @@
               this.hasValidUserIdentity = false;
               this.userIdentityErrors.push(`Email is too long, character limit is 128, you have ${this.userIdentity.length}`);
             }
+          } else if (!/\w/.test(this.newUser.username)) {
+            this.hasValidUserIdentity = false;
+            this.userIdentityErrors.push("Username cannot have non-alphanumeric characters");
           } else if (this.userIdentity.length <= 64) {
             this.hasValidUserIdentity = true;
             this.userIdentityErrors = [];
@@ -411,7 +414,7 @@
 
       validateUsername() {
         if (this.newUser.username) {
-          if (/\w/.test(this.newUser.username)) {
+          if (!/\w/.test(this.newUser.username)) {
             this.hasValidUsername = false;
             this.usernameErrors.push("Username cannot have non-alphanumeric characters");
           } else if (this.emailExpression.test(this.newUser.username)) {
