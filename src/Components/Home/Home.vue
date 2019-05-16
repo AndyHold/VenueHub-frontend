@@ -411,7 +411,10 @@
 
       validateUsername() {
         if (this.newUser.username) {
-          if(this.emailExpression.test(this.newUser.username)) {
+          if (/\w/.test(this.newUser.username)) {
+            this.hasValidUsername = false;
+            this.usernameErrors.push("Username cannot have non-alphanumeric characters");
+          } else if (this.emailExpression.test(this.newUser.username)) {
             this.hasValidUsername = false;
             this.usernameErrors.push("Username cannot be an email");
           } else if (this.newUser.username.length <= 64) {
