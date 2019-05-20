@@ -24,7 +24,7 @@
               ></v-img>
             </v-flex>
             <upload-photo-dialog
-              v-if="owner"
+              v-if="isOwner"
               :userPhoto="userPhoto"
               v-on:loggedOut="$emit('loggedOut')"
               v-on:displayMessage="displayMessage"
@@ -45,7 +45,7 @@
           <v-spacer></v-spacer>
 
           <edit-profile-dialog
-            v-if="owner"
+            v-if="isOwner"
             :user="dataUser"
             v-on:userChanged="userEdited"
             v-on:loggedOut="$emit('loggedOut')"

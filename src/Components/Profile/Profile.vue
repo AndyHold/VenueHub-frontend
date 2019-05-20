@@ -29,7 +29,7 @@
       <v-flex xs4>
         <profile-info-card
           :user="user"
-          :owner="isOwner"
+          :isOwner="isOwner"
           v-on:userChanged="userEdited"
           v-on:loggedOut="logoutUser"
           v-on:displayMessage="displayMessage"
