@@ -43,6 +43,18 @@ export async function requestVenueRatings (venue) {
     endpoint(`/venues?adminId=${venue.admin.userId}&&q=${encodeURIComponent(venue.venueName)}&&categoryId=${venue.category.categoryId}&&city=${encodeURIComponent(venue.city)}`));
 }
 
+export async function getReviewAuthors (reviews) {
+  console.log(reviews);
+  for (let i = 0; i < reviews.length; i++) {
+    let response = await superAgent.get(endpoint(`/users/${reviews[i].reviewAuthor.userId}`))
+      .set("x-authorisation", localStorage.getItem("authToken"));
+
+    reviews[i].reviewAuthor.givenName = response.body.givenName;
+    reviews[i].reviewAuthor.familyName = response.body.familyName;
+  }
+  return reviews;
+}
+
 export async function requestVenueReviews (venueId) {
   return await superAgent.get(endpoint(`/venues/${venueId}/reviews`));
 }

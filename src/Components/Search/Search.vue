@@ -363,6 +363,11 @@
           localStorage.removeItem("authToken");
           this.isLoggedIn = false;
         }
+        this.displayMessage({
+          showSnackbar: true,
+          color: "success",
+          text: "Successfully logged out"
+        });
       },
 
       getPageRange: function(btn) {
@@ -449,11 +454,14 @@
           case 1:
             return (this.startIndex === 10);
           case 2:
-            return (this.startIndex > 10 && (this.numberOfResults - this.startIndex > 20 || (this.numberOfResults <= 50 && this.startIndex === 20)));
+            return (this.startIndex > 10 && (this.numberOfResults - this.startIndex > 20 ||
+              (this.numberOfResults <= 50 && this.startIndex === 20)));
           case 3:
-            return (this.startIndex > 20 && ((this.numberOfResults - this.startIndex > 10 && this.numberOfResults - this.startIndex < 20) || this.numberOfResults <= 40));
+            return (this.startIndex > 20 && ((this.numberOfResults - this.startIndex > 10 &&
+              this.numberOfResults - this.startIndex < 20) || this.numberOfResults <= 40));
           case 4:
-            return (this.startIndex > 20 && this.numberOfResults - this.startIndex > 0 && this.numberOfResults - this.startIndex <= 10);
+            return (this.startIndex > 20 && this.numberOfResults - this.startIndex > 0 &&
+              this.numberOfResults - this.startIndex <= 10);
         }
         if (this.startIndex <= 20) {
 

@@ -5,7 +5,7 @@
     <v-toolbar fixed color="primary" class="page-header" z-index="9999">
       <navigation-menu title="true"></navigation-menu>
       <v-toolbar-title
-        v-if="owner"
+        v-if="isOwner"
         class="page-title"
       >
         Welcome {{ user.givenName }}
@@ -29,7 +29,7 @@
       <v-flex xs4>
         <profile-info-card
           :user="user"
-          :owner="owner"
+          :owner="isOwner"
           v-on:userChanged="userEdited"
           v-on:loggedOut="logoutUser"
           v-on:displayMessage="displayMessage"
@@ -60,7 +60,7 @@
           <v-card-actions>
             <v-spacer align="right">
               <add-venue-dialog
-                v-if="owner"
+                v-if="isOwner"
                 :categories="categories"
                 v-on:displayMessage="displayMessage"
               ></add-venue-dialog>
@@ -73,7 +73,7 @@
               v-if="!this.venues.length"
               align="center"
             >
-              <h4 v-if="owner" class="font-weight-regular">
+              <h4 v-if="isOwner" class="font-weight-regular">
                 You have no venues
               </h4>
               <h4 v-else class="font-weight-regular">
@@ -120,7 +120,7 @@
               v-if="!this.reviews.length || !isLoggedIn"
               align="center"
             >
-              <h4 v-if="owner" class="font-weight-regular">
+              <h4 v-if="isOwner" class="font-weight-regular">
                 You have no reviews
               </h4>
               <h4 v-else-if="isLoggedIn" class="font-weight-regular">
@@ -195,7 +195,7 @@
         venues: [],
         categories: [],
         reviews: [],
-        owner: false,
+        isOwner: false,
         isLoggedIn: false,
         snackBar: {
           showSnackbar: false,
@@ -217,12 +217,18 @@
           localStorage.removeItem("userId");
           localStorage.removeItem("authToken");
           this.isLoggedIn = false;
+          this.isOwner = false;
         } catch (error) {
           localStorage.removeItem("userId");
           localStorage.removeItem("authToken");
           this.isLoggedIn = false;
+          this.isOwner = false;
         }
-        this.$router.go(0);
+        this.displayMessage({
+          showSnackbar: true,
+          color: "success",
+          text: "Successfully logged out"
+        });
       },
 
       getUser: async function () {
@@ -232,7 +238,7 @@
           this.user.givenName = response.body.givenName;
           this.user.familyName = response.body.familyName;
           if (response.body.hasOwnProperty("email")) {
-            this.owner = true;
+            this.isOwner = true;
             this.user.email = response.body.email;
           }
         } catch (error) {
@@ -241,7 +247,7 @@
             localStorage.removeItem("authToken");
             localStorage.removeItem("userId");
             this.isLoggedIn = false;
-            this.owner = false;
+            this.isOwner = false;
           }
           this.$router.push('/');
         }
@@ -265,7 +271,7 @@
               localStorage.removeItem("authToken");
               localStorage.removeItem("userId");
               this.isLoggedIn = false;
-              this.owner = false;
+              this.isOwner = false;
             }
             this.$router.push('/');
           }
@@ -289,7 +295,7 @@
       },
 
       logoutUser: function () {
-        this.owner = false;
+        this.isOwner = false;
         this.isLoggedIn = false;
       }
     },

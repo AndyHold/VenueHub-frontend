@@ -109,7 +109,7 @@
           required: true
         }
       },
-      owner: {
+      isOwner: {
         type: Boolean,
         required: true
       }

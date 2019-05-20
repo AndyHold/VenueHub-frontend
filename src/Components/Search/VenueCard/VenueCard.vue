@@ -132,6 +132,8 @@
                                   v-model="venue.modeCostRating"
                                   length="4"
                                   readonly
+                                  full-icon="monetization_on"
+                                  empty-icon="monetization_on"
                                 ></v-rating>
                               </div>
                             </template>
@@ -151,7 +153,7 @@
                       </v-flex>
                       <v-flex xs8>
                         <h3 class="font-weight-regular right-column">
-                          {{ venue.distance }} km
+                          {{ venue.distance }}
                         </h3>
                       </v-flex>
                     </v-layout>

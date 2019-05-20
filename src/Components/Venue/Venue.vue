@@ -175,6 +175,8 @@
                               length="4"
                               readonly
                               size="1.5vw"
+                              full-icon="monetization_on"
+                              empty-icon="monetization_on"
                             ></v-rating>
                           </div>
                         </template>
@@ -714,6 +716,8 @@
                                       v-model="review.costRating"
                                       length="4"
                                       clearable
+                                      full-icon="monetization_on"
+                                      empty-icon="monetization_on"
                                     ></v-rating>
                                   </div>
                                 </template>
@@ -792,7 +796,7 @@
   import PhotosCard from "./PhotosCard/PhotosCard";
   import {sendLogoutRequest} from "../../Utilities/loginPortal";
   import {
-    checkUserPhoto, postReview,
+    checkUserPhoto, getReviewAuthors, postReview,
     putVenuePhoto,
     requestVenueRatings,
     requestVenueReviews,
@@ -915,10 +919,6 @@
         }
       },
 
-      toggleLongDescription: async function () {
-        this.longDescription = !this.longDescription;
-      },
-
       getAdminPhoto: async function () {
         try {
           await getUserImage(this.venue.admin.userId);
@@ -993,6 +993,11 @@
           this.isAdmin = false;
           this.isLoggedIn = false;
         }
+        this.displayMessage({
+          showSnackbar: true,
+          color: "success",
+          text: "Successfully logged out"
+        });
       },
 
       getMainPhoto: function () {
@@ -1403,10 +1408,24 @@
         }
       },
 
+      async getReviewAuthorDetails(responseBody) {
+        try {
+          responseBody = await getReviewAuthors(responseBody);
+          this.reviews = await this.getReviewAuthorPhotos(responseBody);
+        } catch (error) {
+          console.log(error);
+          this.displayMessage({
+            showSnackbar: true,
+            color: "red",
+            text: "Could not get the review author details."
+          });
+        }
+      },
+
       getVenueReviews: async function () {
         try {
           let response = await requestVenueReviews(this.venueId);
-          this.reviews = await this.getReviewAuthorPhotos(response.body);
+          await this.getReviewAuthorDetails(response.body);
           this.checkCanReview();
         } catch (error) {
           this.displayMessage({

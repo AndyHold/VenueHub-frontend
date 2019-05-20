@@ -309,7 +309,7 @@
           country: ""
         },
         nameRules: [rules.requiredString, rules.stringLessThanLimit(64)],
-        arrayRequiredRule: [rules.requiredArray],
+        arrayRequiredRule: [rules.requiredNumber],
         validForm: false
       }
     },
@@ -518,6 +518,8 @@
         this.validateAllVenue();
         if (this.hasValidVenueInput) {
           try {
+            this.newVenue.latitude = parseFloat(this.newVenue.latitude);
+            this.newVenue.longitude = parseFloat(this.newVenue.longitude);
             let response = await sendNewVenue(this.newVenue);
             this.$router.push(`/venues/${response.body.venueId}`);
           } catch (error) {

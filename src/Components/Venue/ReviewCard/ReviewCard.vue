@@ -44,13 +44,22 @@
               </v-flex>
             </v-layout>
 
-            <!-- Username Row -->
-            <v-layout>
-              <v-flex x1>
-                <h4 class="font-weight-regular" align="center">
-                  {{ review.reviewAuthor.username }}
-                </h4>
-              </v-flex>
+            <!-- Name Row -->
+            <v-layout row>
+              <v-spacer align="right">
+                <v-flex xs6 sm6 md6 lg6 xl6>
+                  <h4 class="font-weight-regular pad-right-5">
+                    {{ review.reviewAuthor.givenName }}
+                  </h4>
+                </v-flex>
+              </v-spacer>
+              <v-spacer x1 align="left">
+                <v-flex xs6 sm6 md6 lg6 xl6 class="pad-left-5">
+                  <h4>
+                    {{ review.reviewAuthor.familyName }}
+                  </h4>
+                </v-flex>
+              </v-spacer>
             </v-layout>
 
           </v-flex>
@@ -133,6 +142,8 @@
                           length="4"
                           readonly
                           size="1.5vw"
+                          full-icon="monetization_on"
+                          empty-icon="monetization_on"
                         ></v-rating>
                       </div>
                     </template>
@@ -166,6 +177,14 @@
             required: true
           },
           username: {
+            type: String,
+            required: true
+          },
+          givenName: {
+            type: String,
+            required: true
+          },
+          familyName: {
             type: String,
             required: true
           }
@@ -238,6 +257,14 @@
 
   .info-font {
     font-size: 1.5vw;
+  }
+
+  .pad-left-5 {
+    padding-left: 5px;
+  }
+
+  .pad-right-5 {
+    padding-right: 5px;
   }
 
 </style>

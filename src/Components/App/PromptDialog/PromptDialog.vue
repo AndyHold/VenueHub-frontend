@@ -52,6 +52,11 @@
 
     methods: {
 
+      /**
+       * Called when one of the buttons is selected.
+       *
+       * @param response the boolean response, true if confirm false if cancel.
+       */
       sendResponse: function(response) {
         if (response && this.onConfirm) {
           this.onConfirm();

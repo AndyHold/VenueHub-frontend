@@ -16,7 +16,13 @@ export async function getVenues(queries, startIndex, count) {
 
   if (queries.myLatitude != null && queries.myLongitude != null) {
     for (let i = 0; i < response.body.length; i++) {
-      response.body[i].distance = response.body[i].distance.toFixed(3);
+      let distance = response.body[i].distance.toFixed(3);
+      if (distance < 1.0) {
+        distance = (distance * 1000).toString() + " Meters";
+      } else {
+        distance = distance.toString() + " Kilometers";
+      }
+      response.body[i].distance = distance;
     }
   }
   return response.body;

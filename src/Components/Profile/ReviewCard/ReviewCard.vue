@@ -194,6 +194,8 @@
                           length="4"
                           readonly
                           size="1.5vw"
+                          full-icon="monetization_on"
+                          empty-icon="monetization_on"
                         ></v-rating>
                       </div>
                     </template>
